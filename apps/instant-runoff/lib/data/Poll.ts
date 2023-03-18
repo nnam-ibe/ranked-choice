@@ -2,14 +2,12 @@ import mongoose from 'mongoose';
 import { ApiError } from 'next/dist/server/api-utils';
 
 import { PollModel } from '../schemas';
-import { dbConnect } from '../../config/connection';
 import type { PollCreation, PollWithResult, Vote } from '../schemas';
 
 const { ObjectId } = mongoose.Types;
 
 export const PollService = {
   closePoll: async (pollIdString: string) => {
-    await dbConnect();
     const pollId = new ObjectId(pollIdString);
     const result = await PollModel.updateOne({ _id: pollId }, { closed: true });
     if (!result.acknowledged) {
@@ -18,13 +16,11 @@ export const PollService = {
     return result;
   },
   createPoll: async (poll: PollCreation) => {
-    await dbConnect();
     const doc = new PollModel(poll);
     await doc.save();
   },
   submitVote: async (vote: Vote) => {
     const { _id: pollIdString, choice } = vote;
-    await dbConnect();
     const pollId = new ObjectId(pollIdString);
     const poll = await PollModel.findOne(pollId);
     if (!poll) throw new ApiError(403, 'Poll not found');
@@ -51,7 +47,6 @@ export const PollService = {
     return result;
   },
   getResult: async (pollIdString: string) => {
-    await dbConnect();
     const pollId = new ObjectId(pollIdString);
 
     const poll = await PollModel.aggregate([

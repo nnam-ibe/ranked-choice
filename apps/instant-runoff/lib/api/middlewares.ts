@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { ZodError } from 'zod';
 
+import { dbConnect } from '../../config/connection';
+
 type Middleware = (req: NextApiRequest, res: NextApiResponse) => unknown;
 
 function getZodErrorResponse(error: ZodError) {
@@ -27,6 +29,13 @@ function getErrorResponse(error: unknown) {
   return { message: 'Internal Server Error' };
 }
 
+async function dbConnectionMiddleWare(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  await dbConnect();
+}
+
 export function withMiddleware(...middlewares: NextApiHandler[]) {
   return async function withMiddlewareHandler(
     req: NextApiRequest,
@@ -42,8 +51,9 @@ export function withMiddleware(...middlewares: NextApiHandler[]) {
         res.status(getErrorStatus(error)).json(getErrorResponse(error));
       }
     }
+    const allMiddleWare = [dbConnectionMiddleWare, ...middlewares];
 
-    for await (const middleware of middlewares) {
+    for await (const middleware of allMiddleWare) {
       await evaluateHandler(middleware);
     }
   };
