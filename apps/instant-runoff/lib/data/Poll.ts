@@ -19,6 +19,29 @@ export const PollService = {
     const doc = new PollModel(poll);
     await doc.save();
   },
+  getPoll: async (pollIdString: string) => {
+    const pollId = new ObjectId(pollIdString);
+
+    const poll = await PollModel.findOne({ _id: pollId });
+    if (!poll) throw new ApiError(403, 'Poll not found');
+
+    return poll;
+  },
+  getResult: async (pollIdString: string) => {
+    const pollId = new ObjectId(pollIdString);
+
+    const poll = await PollModel.aggregate([
+      { $match: { _id: pollId } },
+      {
+        $addFields: {
+          totalVotes: { $sum: '$choices.votes' },
+        },
+      },
+    ]);
+    if (!poll[0]) throw new ApiError(403, 'Poll not found');
+
+    return poll[0] as PollWithResult;
+  },
   submitVote: async (vote: Vote) => {
     const { _id: pollIdString, choice } = vote;
     const pollId = new ObjectId(pollIdString);
@@ -45,20 +68,5 @@ export const PollService = {
       throw new ApiError(403, 'Vote not submitted');
     }
     return result;
-  },
-  getResult: async (pollIdString: string) => {
-    const pollId = new ObjectId(pollIdString);
-
-    const poll = await PollModel.aggregate([
-      { $match: { _id: pollId } },
-      {
-        $addFields: {
-          totalVotes: { $sum: '$choices.votes' },
-        },
-      },
-    ]);
-    if (!poll[0]) throw new ApiError(403, 'Poll not found');
-
-    return poll[0] as PollWithResult;
   },
 };
