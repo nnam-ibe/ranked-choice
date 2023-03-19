@@ -1,6 +1,15 @@
 import { useReducer } from 'react';
-import { Alert, Button, Radio, RadioGroup, Sheet, Stack } from '@mui/joy';
+import {
+  Alert,
+  Button,
+  Radio,
+  RadioGroup,
+  Sheet,
+  Stack,
+  Typography,
+} from '@mui/joy';
 import Link from 'next/link';
+import type { GetServerSideProps } from 'next';
 
 import { PollService } from '../../../lib/data/Poll';
 import { submitVote } from '../../../lib/client/apiClient';
@@ -10,6 +19,10 @@ import type { Poll } from '../../../lib/schemas';
 export interface PollProps {
   poll: Poll;
 }
+
+/**
+- TODO: Change alert to snakbar
+ */
 
 type PollPageState = {
   alertColor: 'primary' | 'danger' | 'neutral';
@@ -99,8 +112,12 @@ export function Poll(props: PollProps) {
 
   return (
     <article className={styles['container']}>
-      <h1 className={styles.h1}>{poll.title}</h1>
-      <div className={styles.prompt}>{poll.description}</div>
+      <Typography level="h1" sx={{ mb: 0.5 }}>
+        {poll.title}
+      </Typography>
+      <Typography level="body1" sx={{ mb: 1 }}>
+        {poll.description}
+      </Typography>
       <Stack spacing={2}>
         {state.showAlert && (
           <Alert className={styles['alert']} color={state.alertColor}>
@@ -126,8 +143,11 @@ export function Poll(props: PollProps) {
                       fontWeight: 'lg',
                       fontSize: 'md',
                       color: checked ? 'text.primary' : 'text.secondary',
-                      padding: '1rem 1rem',
-                      minWidth: '20vw',
+                      padding: '1rem',
+                      display: '-webkit-box',
+                      '-webkit-line-clamp': '3',
+                      '-webkit-box-orient': 'vertical',
+                      overflow: 'hidden',
                     },
                   }),
                   action: ({ checked }) => ({
@@ -165,14 +185,17 @@ export function Poll(props: PollProps) {
   );
 }
 
-export async function getServerSideProps({ params }) {
-  const poll = await PollService.getPoll(params.slug);
+type ServerSideParams = { slug: string };
+type ServerSideResult = GetServerSideProps<PollProps, ServerSideParams>;
+
+export const getServerSideProps: ServerSideResult = async ({ params }) => {
+  const poll = await PollService.getPoll(params?.slug ?? '');
 
   return {
     props: {
       poll: JSON.parse(JSON.stringify(poll)),
     },
   };
-}
+};
 
 export default Poll;
