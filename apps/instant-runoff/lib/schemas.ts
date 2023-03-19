@@ -16,21 +16,34 @@ export const PollSchema = new mongoose.Schema<Poll>({
 });
 
 export const PollModel =
-  (mongoose.models.Poll as mongoose.Model<Poll>) ||
+  (mongoose.models?.Poll as mongoose.Model<Poll>) ||
   mongoose.model('Poll', PollSchema);
+
+export const choiceMaxLength = 32;
+export const choicesMinLength = 2;
+export const choicesMaxLength = 20;
 
 export const PollZodSchema = z.object({
   _id: z.string() || z.instanceof(ObjectId),
-  description: z.string(),
-  title: z.string(),
+  description: z.string().max(128, `Must be at most 128 characters`),
+  title: z
+    .string()
+    .min(1, 'A title is required')
+    .max(64, 'Must be at most 64 characters'),
   choices: z
     .object({
       _id: z.string() || z.instanceof(ObjectId),
-      title: z.string(),
+      title: z
+        .string()
+        .min(1)
+        .max(choiceMaxLength, `Must be at most ${choiceMaxLength} characters`),
       votes: z.number(),
     })
     .array()
-    .nonempty(),
+    .min(
+      choicesMinLength,
+      `You must have at least ${choicesMinLength} choices`
+    ),
   closed: z.boolean(),
 });
 
@@ -40,7 +53,15 @@ export const PollCreationSchema = PollZodSchema.omit({
 });
 
 export const PollAPIZodSchema = PollCreationSchema.extend({
-  choices: z.string().array().nonempty(),
+  choices: z
+    .string()
+    .min(1)
+    .max(choiceMaxLength, `Must be at most ${choiceMaxLength} characters`)
+    .array()
+    .min(
+      choicesMinLength,
+      `You must have at least ${choicesMinLength} choices`
+    ),
 });
 
 export const PollWithResultSchema = PollZodSchema.extend({

@@ -9,9 +9,9 @@ import {
 } from '@mui/joy';
 import Link from 'next/link';
 
+import { PollService } from '../../../lib/data/Poll';
 import styles from './result.module.css';
 import type { Poll } from '../../../lib/schemas';
-import { PollService } from '../../../lib/data/Poll';
 
 export interface ResultProps {
   poll: Poll;
@@ -30,7 +30,7 @@ export function ResultPage(props: ResultProps) {
             {'Poll is still open'}
           </Alert>
           <div className={styles.viewResults}>
-            <Link href={`/poll/${poll._id}`}>← Back to Polls</Link>
+            <Link href={`/poll/${poll._id}`}>← Back to Poll</Link>
           </div>
         </Box>
       </article>
