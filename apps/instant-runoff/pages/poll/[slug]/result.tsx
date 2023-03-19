@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/joy';
 import Link from 'next/link';
+import type { GetServerSideProps } from 'next';
 
 import { PollService } from '../../../lib/data/Poll';
 import styles from './result.module.css';
@@ -17,14 +18,20 @@ export interface ResultProps {
   poll: Poll;
 }
 
+/**
+- TODO: Click to expand for ItemContent lines that run too long
+ */
+
 export function ResultPage(props: ResultProps) {
   const { poll } = props;
 
   if (!poll.closed) {
     return (
       <article className={styles['container']}>
-        <h1 className={styles.h1}>{poll.title} Results</h1>
-        <div className={styles.prompt}>{poll.description}</div>
+        <Typography level="h2" sx={{ mb: 0.5 }}>
+          {poll.title} Results
+        </Typography>
+        <Typography level="body1">{poll.description}</Typography>
         <Box sx={{ py: 2, pr: 2, width: 320 }}>
           <Alert className={styles['alert']} color="info">
             {'Poll is still open'}
@@ -41,16 +48,27 @@ export function ResultPage(props: ResultProps) {
 
   return (
     <article className={styles['container']}>
-      <h1 className={styles.h1}>{poll.title} Results</h1>
-      <div className={styles.prompt}>{poll.description}</div>
-      <Box sx={{ py: 2, pr: 2, width: 320 }}>
+      <Typography level="h2" sx={{ mb: 0.5 }}>
+        {poll.title} Results
+      </Typography>
+      <Typography level="body1">{poll.description}</Typography>
+      <Box>
         <List aria-label="Results">
-          {sortedChoices.map((option, index) => {
+          {sortedChoices.map((option) => {
             return (
               <>
                 <ListDivider />
                 <ListItem key={option._id as string}>
-                  <ListItemContent>{option.title}</ListItemContent>
+                  <ListItemContent
+                    sx={{
+                      display: '-webkit-box',
+                      '-webkit-line-clamp': '3',
+                      '-webkit-box-orient': 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {option.title}
+                  </ListItemContent>
                   <Typography
                     level="body2"
                     sx={{ fontWeight: 'bold', color: 'inherit' }}
@@ -67,8 +85,11 @@ export function ResultPage(props: ResultProps) {
   );
 }
 
-export async function getServerSideProps({ params }) {
-  const poll = await PollService.getPoll(params.slug);
+type ServerSideParams = { slug: string };
+type ServerSideResult = GetServerSideProps<ResultProps, ServerSideParams>;
+
+export const getServerSideProps: ServerSideResult = async ({ params }) => {
+  const poll = await PollService.getPoll(params?.slug ?? '');
 
   const result = poll.closed
     ? poll
@@ -84,6 +105,6 @@ export async function getServerSideProps({ params }) {
       poll: JSON.parse(JSON.stringify(result)),
     },
   };
-}
+};
 
 export default ResultPage;
