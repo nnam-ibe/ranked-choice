@@ -1,0 +1,34 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.prompt {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.radio-group {
+  align-items: left;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.options-container {
+  margin-bottom: 1rem;
+}
+
+.alert {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
