@@ -7,11 +7,12 @@ import { dbConnect } from '../../config/connection';
 type Middleware = (req: NextApiRequest, res: NextApiResponse) => unknown;
 
 function getZodErrorResponse(error: ZodError) {
+  const accumulator: Record<string, string> = {};
   const fields = error.issues.reduce((acc, issue) => {
     const { path, message } = issue;
     acc[path.join('.')] = message;
     return acc;
-  }, {});
+  }, accumulator);
   return {
     message: 'Invalid fields',
     fields,

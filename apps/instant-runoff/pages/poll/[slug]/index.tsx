@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
+import { getErrorMessage } from '../../../lib/utils/errorUtil';
 import { PollService } from '../../../lib/data/Poll';
 import { submitVote } from '../../../lib/client/apiClient';
 import styles from './index.module.css';
@@ -103,7 +104,7 @@ export function Poll(props: PollProps) {
       await submitVote(poll._id as string, state.selectedOption);
       dispatch({ type: 'submitSuccess', alertMessage: 'Vote submitted!' });
     } catch (error) {
-      dispatch({ type: 'submitFailure', alertMessage: error.message });
+      dispatch({ type: 'submitFailure', alertMessage: getErrorMessage(error) });
     }
     setTimeout(() => {
       dispatch({ type: 'closeAlert' });
