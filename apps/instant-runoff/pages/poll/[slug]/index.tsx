@@ -1,17 +1,18 @@
 import { useReducer } from 'react';
-import { Alert, Box, Button, Radio, RadioGroup, Sheet } from '@mui/joy';
+import { Alert, Button, Radio, RadioGroup, Sheet, Stack } from '@mui/joy';
+import Link from 'next/link';
 
-import styles from './index.module.css';
-import type { Poll } from '../../../lib/schemas';
 import { PollService } from '../../../lib/data/Poll';
 import { submitVote } from '../../../lib/client/apiClient';
+import styles from './index.module.css';
+import type { Poll } from '../../../lib/schemas';
 
 export interface PollProps {
   poll: Poll;
 }
 
 type PollPageState = {
-  alertColor: 'primary' | 'danger';
+  alertColor: 'primary' | 'danger' | 'neutral';
   alertMessage: string;
   selectedOption: string;
   showAlert: boolean;
@@ -64,10 +65,10 @@ const pollPageReducer = (
 export function Poll(props: PollProps) {
   const { poll } = props;
   const [state, dispatch] = useReducer(pollPageReducer, {
-    alertColor: 'primary',
-    alertMessage: '',
+    alertColor: 'neutral',
+    alertMessage: 'Poll is closed.',
     selectedOption: '',
-    showAlert: false,
+    showAlert: poll.closed || false,
     submitDisabled: false,
     submitLoading: false,
   });
@@ -93,9 +94,11 @@ export function Poll(props: PollProps) {
     <article className={styles['container']}>
       <h1 className={styles.h1}>{poll.title}</h1>
       <div className={styles.prompt}>{poll.description}</div>
-      <Box className={styles['options-container']}>
+      <Stack spacing={2}>
         {state.showAlert && (
-          <Alert className={styles['alert']}>{state.alertMessage}</Alert>
+          <Alert className={styles['alert']} color={state.alertColor}>
+            {state.alertMessage}
+          </Alert>
         )}
         <RadioGroup
           size="lg"
@@ -136,15 +139,21 @@ export function Poll(props: PollProps) {
             </Sheet>
           ))}
         </RadioGroup>
-      </Box>
-      <Button
-        title="Submit Vote!"
-        onClick={handleSubmit}
-        disabled={state.submitDisabled}
-        loading={state.submitLoading}
-      >
-        Submit Vote!
-      </Button>
+        <Button
+          title="Submit Vote!"
+          onClick={handleSubmit}
+          disabled={poll.closed || state.submitDisabled}
+          loading={state.submitLoading}
+          size="lg"
+        >
+          Submit Vote!
+        </Button>
+        {poll.closed && (
+          <div className={styles.viewResults}>
+            <Link href={`/poll/${poll._id}/result`}>View Results →</Link>
+          </div>
+        )}
+      </Stack>
     </article>
   );
 }
