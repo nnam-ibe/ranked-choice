@@ -7,8 +7,9 @@ import {
   ListDivider,
   Typography,
 } from '@mui/joy';
+import Link from 'next/link';
 
-import styles from './index.module.css';
+import styles from './result.module.css';
 import type { Poll } from '../../../lib/schemas';
 import { PollService } from '../../../lib/data/Poll';
 
@@ -28,6 +29,9 @@ export function ResultPage(props: ResultProps) {
           <Alert className={styles['alert']} color="info">
             {'Poll is still open'}
           </Alert>
+          <div className={styles.viewResults}>
+            <Link href={`/poll/${poll._id}`}>← Back to Polls</Link>
+          </div>
         </Box>
       </article>
     );

@@ -18,6 +18,7 @@ type PollPageState = {
   showAlert: boolean;
   submitDisabled: boolean;
   submitLoading: boolean;
+  voted: boolean;
 };
 
 type PollPageAction =
@@ -38,7 +39,12 @@ const pollPageReducer = (
     case 'selectOption':
       return { ...state, selectedOption: action.option };
     case 'submit':
-      return { ...state, submitDisabled: true, submitLoading: true };
+      return {
+        ...state,
+        submitDisabled: true,
+        submitLoading: true,
+        voted: true,
+      };
     case 'submitSuccess':
       return {
         ...state,
@@ -71,6 +77,7 @@ export function Poll(props: PollProps) {
     showAlert: poll.closed || false,
     submitDisabled: false,
     submitLoading: false,
+    voted: false,
   });
 
   const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,11 +149,11 @@ export function Poll(props: PollProps) {
         <Button
           title="Submit Vote!"
           onClick={handleSubmit}
-          disabled={poll.closed || state.submitDisabled}
+          disabled={poll.closed || state.voted || state.submitDisabled}
           loading={state.submitLoading}
           size="lg"
         >
-          Submit Vote!
+          {state.voted ? 'Voted!' : 'Submit Vote!'}
         </Button>
         {poll.closed && (
           <div className={styles.viewResults}>
