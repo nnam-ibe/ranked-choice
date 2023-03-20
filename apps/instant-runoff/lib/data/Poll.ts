@@ -2,9 +2,14 @@ import mongoose from 'mongoose';
 import { ApiError } from 'next/dist/server/api-utils';
 
 import { PollModel } from '../schemas';
-import type { PollCreation, PollWithResult, Vote } from '../schemas';
+import type { PollCreation, PollsList, PollWithResult, Vote } from '../schemas';
 
 const { ObjectId } = mongoose.Types;
+
+type QueryOptions = {
+  limit?: number;
+  sort?: { [key: string]: -1 | 1 };
+};
 
 export const PollService = {
   closePoll: async (pollIdString: string) => {
@@ -26,6 +31,17 @@ export const PollService = {
     if (!poll) throw new ApiError(403, 'Poll not found');
 
     return poll;
+  },
+  getPolls: async (options?: QueryOptions): Promise<PollsList> => {
+    const limit = options?.limit ?? 10;
+    const sort = options?.sort ?? { _id: -1 };
+    const polls = await PollModel.find(
+      {},
+      { _id: 1, title: 1, closed: 1, description: 1 }
+    )
+      .sort(sort)
+      .limit(limit);
+    return polls;
   },
   getResult: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);

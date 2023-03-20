@@ -64,6 +64,13 @@ export const PollAPIZodSchema = PollCreationSchema.extend({
     ),
 });
 
+export const PollsListZodSchema = PollZodSchema.pick({
+  closed: true,
+  description: true,
+  _id: true,
+  title: true,
+}).array();
+
 export const PollWithResultSchema = PollZodSchema.extend({
   totalVotes: z.number(),
 });
@@ -71,6 +78,7 @@ export const PollWithResultSchema = PollZodSchema.extend({
 export type Poll = z.infer<typeof PollZodSchema>;
 export type PollCreation = z.infer<typeof PollCreationSchema>;
 export type PollAPI = z.infer<typeof PollAPIZodSchema>;
+export type PollsList = z.infer<typeof PollsListZodSchema>;
 
 export const voteZodSchema = z.object({
   _id: z.string(),

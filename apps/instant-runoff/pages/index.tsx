@@ -1,6 +1,16 @@
-import styles from './index.module.css';
+import Link from 'next/link';
+import type { GetServerSideProps } from 'next';
 
-export function Index() {
+import styles from './index.module.css';
+import { PollService } from '../lib/data/Poll';
+import type { PollsList } from '../lib/schemas';
+
+export interface HomePageProps {
+  polls: PollsList;
+}
+
+export function HomePage(props: HomePageProps) {
+  const { polls } = props;
   /*
    * Replace the elements below with your own.
    *
@@ -52,6 +62,20 @@ export function Index() {
           <div id="middle-content">
             <div id="learning-materials" className="rounded shadow">
               <h2>Learning materials</h2>
+              {polls.map((poll) => {
+                return (
+                  <Link
+                    key={poll._id}
+                    href={`/poll/${poll._id}`}
+                    className="list-item-link"
+                  >
+                    <span>
+                      {poll.title}
+                      <span> {poll.description} </span>
+                    </span>
+                  </Link>
+                );
+              })}
               <a
                 href="https://nx.dev/getting-started/intro?utm_source=nx-project"
                 target="_blank"
@@ -412,4 +436,16 @@ export function Index() {
   );
 }
 
-export default Index;
+type ServerSideHome = GetServerSideProps<HomePageProps>;
+
+export const getServerSideProps: ServerSideHome = async () => {
+  const polls = await PollService.getPolls();
+
+  return {
+    props: {
+      polls: JSON.parse(JSON.stringify(polls)),
+    },
+  };
+};
+
+export default HomePage;
