@@ -14,6 +14,7 @@ import type { GetServerSideProps } from 'next';
 import { getErrorMessage } from '../../../core/utils/error';
 import { PollService } from '../../../core/api/PollService';
 import { submitVote } from '../../../lib/client/apiClient';
+import { stringifyObjectId } from '../../../core/utils/stringify';
 import styles from './index.module.css';
 import type { Poll } from '../../../core/schemas/PollSchemas';
 
@@ -194,7 +195,7 @@ export const getServerSideProps: ServerSideResult = async ({ params }) => {
 
   return {
     props: {
-      poll: JSON.parse(JSON.stringify(poll)),
+      poll: stringifyObjectId(poll),
     },
   };
 };

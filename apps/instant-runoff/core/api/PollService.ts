@@ -3,6 +3,7 @@ import { ApiError } from 'next/dist/server/api-utils';
 
 import { PollModel } from '../schemas/PollSchemas';
 import type {
+  Poll,
   PollCreation,
   PollsList,
   PollWithResult,
@@ -12,6 +13,7 @@ import type {
 const { ObjectId } = mongoose.Types;
 
 type QueryOptions = {
+  query?: mongoose.FilterQuery<unknown>;
   limit?: number;
   sort?: { [key: string]: -1 | 1 };
 };
@@ -32,7 +34,7 @@ export const PollService = {
   getPoll: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
 
-    const poll = await PollModel.findOne({ _id: pollId });
+    const poll = await PollModel.findOne<Poll>({ _id: pollId });
     if (!poll) throw new ApiError(403, 'Poll not found');
 
     return poll;
@@ -40,10 +42,13 @@ export const PollService = {
   getPolls: async (options?: QueryOptions): Promise<PollsList> => {
     const limit = options?.limit ?? 10;
     const sort = options?.sort ?? { _id: -1 };
-    const polls = await PollModel.find(
-      {},
-      { _id: 1, title: 1, closed: 1, description: 1 }
-    )
+    const query = options?.query ?? {};
+    const polls = await PollModel.find<Poll>(query, {
+      _id: 1,
+      title: 1,
+      closed: 1,
+      description: 1,
+    })
       .sort(sort)
       .limit(limit);
     return polls;
@@ -51,7 +56,7 @@ export const PollService = {
   getResult: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
 
-    const poll = await PollModel.aggregate([
+    const poll = await PollModel.aggregate<PollWithResult>([
       { $match: { _id: pollId } },
       {
         $addFields: {
@@ -61,7 +66,7 @@ export const PollService = {
     ]);
     if (!poll[0]) throw new ApiError(403, 'Poll not found');
 
-    return poll[0] as PollWithResult;
+    return poll[0];
   },
   submitVote: async (vote: Vote) => {
     const { _id: pollIdString, choice } = vote;

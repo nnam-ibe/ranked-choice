@@ -3,6 +3,7 @@ import type { GetServerSideProps } from 'next';
 
 import styles from './index.module.css';
 import { PollService } from '../core/api/PollService';
+import { stringifyObjectId } from '../core/utils/stringify';
 import type { PollsList } from '../core/schemas/PollSchemas';
 
 export interface HomePageProps {
@@ -439,11 +440,13 @@ export function HomePage(props: HomePageProps) {
 type ServerSideHome = GetServerSideProps<HomePageProps>;
 
 export const getServerSideProps: ServerSideHome = async () => {
-  const polls = await PollService.getPolls();
+  const polls = await PollService.getPolls({
+    query: { closed: false },
+  });
 
   return {
     props: {
-      polls: JSON.parse(JSON.stringify(polls)),
+      polls: polls.map(stringifyObjectId<PollsList[0]>),
     },
   };
 };
