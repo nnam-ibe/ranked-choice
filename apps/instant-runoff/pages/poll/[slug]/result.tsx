@@ -10,9 +10,9 @@ import {
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
-import { PollService } from '../../../lib/data/Poll';
+import { PollService } from '../../../core/api/PollService';
 import styles from './result.module.css';
-import type { Poll } from '../../../lib/schemas';
+import type { Poll } from '../../../core/schemas/PollSchemas';
 
 export interface ResultProps {
   poll: Poll;

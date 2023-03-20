@@ -2,8 +2,8 @@ import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
 import styles from './index.module.css';
-import { PollService } from '../lib/data/Poll';
-import type { PollsList } from '../lib/schemas';
+import { PollService } from '../core/api/PollService';
+import type { PollsList } from '../core/schemas/PollSchemas';
 
 export interface HomePageProps {
   polls: PollsList;

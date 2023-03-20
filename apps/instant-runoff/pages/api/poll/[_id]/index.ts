@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { PollService } from '../../../../lib/data/Poll';
-import { withMiddleware } from '../../../../lib/api/middlewares';
-import type { Poll } from '../../../../lib/schemas';
+import { PollService } from '../../../../core/api/PollService';
+import { withMiddleware } from '../../../../core/api/middlewares';
+import type { Poll } from '../../../../core/schemas/PollSchemas';
 
 async function getPoll(req: NextApiRequest, res: NextApiResponse<Poll>) {
   const poll = await PollService.getPoll(req.query._id as string);

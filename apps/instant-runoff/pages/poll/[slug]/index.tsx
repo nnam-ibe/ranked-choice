@@ -11,11 +11,11 @@ import {
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
-import { getErrorMessage } from '../../../lib/utils/errorUtil';
-import { PollService } from '../../../lib/data/Poll';
+import { getErrorMessage } from '../../../core/utils/error';
+import { PollService } from '../../../core/api/PollService';
 import { submitVote } from '../../../lib/client/apiClient';
 import styles from './index.module.css';
-import type { Poll } from '../../../lib/schemas';
+import type { Poll } from '../../../core/schemas/PollSchemas';
 
 export interface PollProps {
   poll: Poll;

@@ -14,10 +14,13 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { choiceMaxLength, PollAPIZodSchema } from '../../lib/schemas';
+import {
+  choiceMaxLength,
+  APIPollZodSchema,
+} from '../../core/schemas/PollSchemas';
 import { createPoll } from '../../lib/client/apiClient';
 import styles from './create.module.css';
-import type { PollAPI } from '../../lib/schemas';
+import type { APIPoll } from '../../core/schemas/PollSchemas';
 
 /**
 TODO: Add error alert
@@ -28,7 +31,7 @@ export function CreatePage() {
   const [currentItem, setCurrentItem] = useState<string>('');
   const [items, setItems] = useState<Set<string>>(new Set([]));
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
-  const defaultValues: PollAPI = {
+  const defaultValues: APIPoll = {
     choices: [],
     description: '',
     title: '',
@@ -41,7 +44,7 @@ export function CreatePage() {
     setValue,
     trigger,
   } = useForm({
-    resolver: zodResolver(PollAPIZodSchema),
+    resolver: zodResolver(APIPollZodSchema),
     defaultValues,
   });
 
@@ -67,7 +70,7 @@ export function CreatePage() {
     }
   };
 
-  async function onSubmitForm(data: PollAPI) {
+  async function onSubmitForm(data: APIPoll) {
     try {
       setSubmitLoading(true);
       await createPoll(data);

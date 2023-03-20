@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { PollService } from '../../../lib/data/Poll';
-import { PollAPIZodSchema } from '../../../lib/schemas';
-import type { ApiSuccess, PollAPI, PollCreation } from '../../../lib/schemas';
-import { withMiddleware } from '../../../lib/api/middlewares';
+import { PollService } from '../../../core/api/PollService';
+import { APIPollZodSchema } from '../../../core/schemas/PollSchemas';
+import { withMiddleware } from '../../../core/api/middlewares';
+import type { APIPoll, PollCreation } from '../../../core/schemas/PollSchemas';
+import type { ApiSuccess } from '../../../core/schemas/ApiSchemas';
 
-function getPollFromAPI(poll: PollAPI): PollCreation {
+function getPollFromAPI(poll: APIPoll): PollCreation {
   const choices = poll.choices.map((title) => ({
     title,
     votes: 0,
@@ -21,7 +22,7 @@ async function createPoll(
   req: NextApiRequest,
   res: NextApiResponse<ApiSuccess>
 ) {
-  const poll = PollAPIZodSchema.parse(req.body);
+  const poll = APIPollZodSchema.parse(req.body);
 
   await PollService.createPoll(getPollFromAPI(poll));
   res.status(200).json({ message: 'success' });

@@ -1,8 +1,13 @@
 import mongoose from 'mongoose';
 import { ApiError } from 'next/dist/server/api-utils';
 
-import { PollModel } from '../schemas';
-import type { PollCreation, PollsList, PollWithResult, Vote } from '../schemas';
+import { PollModel } from '../schemas/PollSchemas';
+import type {
+  PollCreation,
+  PollsList,
+  PollWithResult,
+  Vote,
+} from '../schemas/PollSchemas';
 
 const { ObjectId } = mongoose.Types;
 

@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { PollService } from '../../../../lib/data/Poll';
-import type { PollWithResult } from '../../../../lib/schemas';
-import { withMiddleware } from '../../../../lib/api/middlewares';
+import { PollService } from '../../../../core/api/PollService';
+import type { PollWithResult } from '../../../../core/schemas/PollSchemas';
+import { withMiddleware } from '../../../../core/api/middlewares';
 
 async function getVoteResult(
   req: NextApiRequest,

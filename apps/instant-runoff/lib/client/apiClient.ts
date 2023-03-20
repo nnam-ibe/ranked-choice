@@ -1,4 +1,6 @@
-import { PollAPI } from '../schemas';
+import { APIPoll } from '../../core/schemas/PollSchemas';
+
+// TODO: use useQuery to fetch data
 
 export async function fetchPoll(pollId: string) {
   // TODO: baseUrl should be moved to config file
@@ -18,7 +20,7 @@ export async function submitVote(pollId: string, choice: string) {
   }).then((res) => res.json());
 }
 
-export async function createPoll(poll: PollAPI) {
+export async function createPoll(poll: APIPoll) {
   // TODO: baseUrl should be moved to config file
   return fetch(`http://localhost:4200/api/poll/create`, {
     method: 'POST',
