@@ -32,6 +32,7 @@ const PollSchema = new mongoose.Schema<Poll>({
   },
   choices: [PollOptionSchema],
   closed: { type: Boolean, default: false },
+  active: { type: Boolean, default: true },
 });
 
 export const PollModel =
@@ -70,11 +71,13 @@ export const PollZodSchema = z.object({
       `You must have at least ${choicesMinLength} choices`
     ),
   closed: z.boolean(),
+  active: z.boolean(),
 });
 
 const PollZodCreationSchema = PollZodSchema.omit({
   _id: true,
   closed: true,
+  active: true,
 });
 
 export const APIPollZodSchema = PollZodCreationSchema.extend({

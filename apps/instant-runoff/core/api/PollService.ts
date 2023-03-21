@@ -19,6 +19,14 @@ type QueryOptions = {
 };
 
 export const PollService = {
+  activatePoll: async (pollIdString: string) => {
+    const pollId = new ObjectId(pollIdString);
+    const result = await PollModel.updateOne({ _id: pollId }, { active: true });
+    if (!result.acknowledged) {
+      throw new ApiError(403, 'Failed to activate poll');
+    }
+    return result;
+  },
   closePoll: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
     const result = await PollModel.updateOne({ _id: pollId }, { closed: true });
@@ -30,6 +38,17 @@ export const PollService = {
   createPoll: async (poll: PollCreation) => {
     const doc = new PollModel(poll);
     await doc.save();
+  },
+  deactivePoll: async (pollIdString: string) => {
+    const pollId = new ObjectId(pollIdString);
+    const result = await PollModel.updateOne(
+      { _id: pollId },
+      { active: false }
+    );
+    if (!result.acknowledged) {
+      throw new ApiError(403, 'Failed to deactivate poll');
+    }
+    return result;
   },
   getPoll: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
@@ -43,6 +62,7 @@ export const PollService = {
     const limit = options?.limit ?? 10;
     const sort = options?.sort ?? { _id: -1 };
     const query = options?.query ?? {};
+    if (!query.active) query.active = true;
     const polls = await PollModel.find<Poll>(query, {
       _id: 1,
       title: 1,
@@ -74,6 +94,7 @@ export const PollService = {
     const poll = await PollModel.findOne(pollId);
     if (!poll) throw new ApiError(403, 'Poll not found');
     if (poll.closed) throw new ApiError(403, 'Poll already closed');
+    if (!poll.active) throw new ApiError(403, 'Poll has been deactivated');
 
     const pollOption = poll.choices.find((c) => c.title === choice);
     if (!pollOption) {

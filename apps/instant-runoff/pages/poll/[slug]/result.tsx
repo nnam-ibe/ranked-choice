@@ -57,14 +57,14 @@ export function ResultPage(props: ResultProps) {
         <List aria-label="Results">
           {sortedChoices?.map((option) => {
             return (
-              <>
+              <div key={option._id}>
                 <ListDivider />
                 <ListItem key={option._id as string}>
                   <ListItemContent
                     sx={{
                       display: '-webkit-box',
-                      '-webkit-line-clamp': '3',
-                      '-webkit-box-orient': 'vertical',
+                      WebkitLineClamp: '3',
+                      WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
                     }}
                   >
@@ -77,7 +77,7 @@ export function ResultPage(props: ResultProps) {
                     {option.votes}
                   </Typography>
                 </ListItem>
-              </>
+              </div>
             );
           })}
         </List>
