@@ -34,7 +34,7 @@ export function ResultPage(props: ResultProps) {
           {poll.title} Results
         </Typography>
         <Typography level="body1">{poll.description}</Typography>
-        <Box sx={{ py: 2, pr: 2, width: 320 }}>
+        <Box>
           <Alert className={styles['alert']} color="info">
             {'Poll is still open'}
           </Alert>
