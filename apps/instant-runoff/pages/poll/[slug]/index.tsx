@@ -13,8 +13,9 @@ import type { GetServerSideProps } from 'next';
 
 import { getErrorMessage } from '../../../core/utils/error';
 import { PollService } from '../../../core/api/PollService';
-import { submitVote } from '../../../lib/client/apiClient';
 import { stringifyData } from '../../../core/utils/stringify';
+import { submitVote } from '../../../lib/client/apiClient';
+import mongoClient from '../../../lib/mongodb';
 import styles from './index.module.css';
 import type { Poll } from '../../../core/schemas/PollSchemas';
 
@@ -191,6 +192,7 @@ type ServerSideParams = { slug: string };
 type ServerSideResult = GetServerSideProps<PollProps, ServerSideParams>;
 
 export const getServerSideProps: ServerSideResult = async ({ params }) => {
+  await mongoClient;
   const poll = await PollService.getPoll(params?.slug ?? '');
 
   return {

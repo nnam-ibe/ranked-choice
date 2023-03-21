@@ -11,8 +11,9 @@ import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
 import { PollService } from '../../../core/api/PollService';
-import styles from './result.module.css';
 import { stringifyData } from '../../../core/utils/stringify';
+import mongoClient from '../../../lib/mongodb';
+import styles from './result.module.css';
 import type { Poll } from '../../../core/schemas/PollSchemas';
 
 export interface ResultProps {
@@ -90,6 +91,7 @@ type ServerSideParams = { slug: string };
 type ServerSideResult = GetServerSideProps<ResultProps, ServerSideParams>;
 
 export const getServerSideProps: ServerSideResult = async ({ params }) => {
+  await mongoClient;
   const poll = await PollService.getPoll(params?.slug ?? '');
 
   const result = poll.closed

@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import { ApiError } from 'next/dist/server/api-utils';
 import { ZodError } from 'zod';
-
-import { dbConnect } from '../../config/connection';
+import mongoClient from '../../lib/mongodb';
 
 type Middleware = (req: NextApiRequest, res: NextApiResponse) => unknown;
 
@@ -34,7 +33,7 @@ async function dbConnectionMiddleWare(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await dbConnect();
+  await mongoClient;
 }
 
 export function withMiddleware(...middlewares: NextApiHandler[]) {

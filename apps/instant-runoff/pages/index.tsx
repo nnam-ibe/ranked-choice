@@ -5,6 +5,7 @@ import styles from './index.module.css';
 import { PollService } from '../core/api/PollService';
 import { stringifyData } from '../core/utils/stringify';
 import type { PollsList } from '../core/schemas/PollSchemas';
+import mongoClient from '../lib/mongodb';
 
 export interface HomePageProps {
   closedPolls: PollsList;
@@ -106,6 +107,7 @@ export function HomePage(props: HomePageProps) {
 type ServerSideHome = GetServerSideProps<HomePageProps>;
 
 export const getServerSideProps: ServerSideHome = async () => {
+  await mongoClient;
   const closedPolls = await PollService.getPolls({
     query: { closed: true },
   });

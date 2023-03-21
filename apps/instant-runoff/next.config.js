@@ -2,7 +2,6 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { withNx } = require('@nrwl/next/plugins/with-nx');
-const dbConnect = require('./config/database');
 
 /**
  * @type {import('@nrwl/next/plugins/with-nx').WithNxOptions}
@@ -15,7 +14,7 @@ const nextConfig = {
   },
   serverRuntimeConfig: {
     database: {
-      dbConnect,
+      uri: process.env.MONGODB_URI,
     },
   },
 };
