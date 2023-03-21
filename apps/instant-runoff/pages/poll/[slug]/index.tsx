@@ -14,7 +14,7 @@ import type { GetServerSideProps } from 'next';
 import { getErrorMessage } from '../../../core/utils/error';
 import { PollService } from '../../../core/api/PollService';
 import { submitVote } from '../../../lib/client/apiClient';
-import { stringifyObjectId } from '../../../core/utils/stringify';
+import { stringifyData } from '../../../core/utils/stringify';
 import styles from './index.module.css';
 import type { Poll } from '../../../core/schemas/PollSchemas';
 
@@ -147,8 +147,8 @@ export function Poll(props: PollProps) {
                       color: checked ? 'text.primary' : 'text.secondary',
                       padding: '1rem',
                       display: '-webkit-box',
-                      '-webkit-line-clamp': '3',
-                      '-webkit-box-orient': 'vertical',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
                     },
                   }),
@@ -195,7 +195,7 @@ export const getServerSideProps: ServerSideResult = async ({ params }) => {
 
   return {
     props: {
-      poll: stringifyObjectId(poll),
+      poll: stringifyData(poll),
     },
   };
 };

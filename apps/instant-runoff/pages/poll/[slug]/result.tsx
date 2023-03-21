@@ -12,7 +12,7 @@ import type { GetServerSideProps } from 'next';
 
 import { PollService } from '../../../core/api/PollService';
 import styles from './result.module.css';
-import { stringifyObjectId } from '../../../core/utils/stringify';
+import { stringifyData } from '../../../core/utils/stringify';
 import type { Poll } from '../../../core/schemas/PollSchemas';
 
 export interface ResultProps {
@@ -103,7 +103,7 @@ export const getServerSideProps: ServerSideResult = async ({ params }) => {
 
   return {
     props: {
-      poll: stringifyObjectId(result),
+      poll: stringifyData(result),
     },
   };
 };

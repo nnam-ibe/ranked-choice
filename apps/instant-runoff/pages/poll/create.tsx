@@ -58,12 +58,21 @@ export function CreatePage() {
   const handleAddChip = () => {
     if (currentItem.length === 0) return;
     if (currentItem.length > choiceMaxLength) return;
-    if (!items.has(currentItem)) {
-      const newItems = new Set(items);
-      newItems.add(currentItem);
-      setItems(newItems);
-      setValue('choices', [...newItems]);
-    }
+    const itemsToAdd = currentItem.split(',');
+
+    const newItems = new Set(items);
+    itemsToAdd.forEach((toAdd) => {
+      toAdd = toAdd.trim();
+      if (toAdd.length === 0) return;
+      if (items.has(toAdd)) return;
+      newItems.add(toAdd);
+    });
+
+    // Update items set
+    setItems(newItems);
+    // Update form value
+    setValue('choices', [...newItems]);
+    // Clear input
     setCurrentItem('');
     if (errors.choices) {
       trigger('choices');
