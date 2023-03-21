@@ -16,7 +16,7 @@ import { stringifyData } from '../../../core/utils/stringify';
 import type { Poll } from '../../../core/schemas/PollSchemas';
 
 export interface ResultProps {
-  poll: Poll;
+  poll: Partial<Poll>;
 }
 
 /**
@@ -45,7 +45,7 @@ export function ResultPage(props: ResultProps) {
     );
   }
 
-  const sortedChoices = poll.choices.sort((a, b) => b.votes - a.votes);
+  const sortedChoices = poll.choices?.sort((a, b) => b.votes - a.votes);
 
   return (
     <article className={styles['container']}>
@@ -55,7 +55,7 @@ export function ResultPage(props: ResultProps) {
       <Typography level="body1">{poll.description}</Typography>
       <Box>
         <List aria-label="Results">
-          {sortedChoices.map((option) => {
+          {sortedChoices?.map((option) => {
             return (
               <>
                 <ListDivider />
