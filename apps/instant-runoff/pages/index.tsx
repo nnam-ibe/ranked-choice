@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
-import styles from './index.module.css';
 import { PollService } from '../core/api/PollService';
 import { stringifyData } from '../core/utils/stringify';
-import type { PollsList } from '../core/schemas/PollSchemas';
 import mongoClient from '../lib/mongodb';
+import styles from './index.module.css';
+import type { PollsList } from '../core/schemas/PollSchemas';
 
 export interface HomePageProps {
   closedPolls: PollsList;
