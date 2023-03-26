@@ -1,18 +1,34 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
+import { ApiError } from 'next/dist/server/api-utils';
 import { PollService } from '../../../../core/api/PollService';
-import type { ApiSuccess } from '../../../../core/schemas/ApiSchemas';
-import type { Vote } from '../../../../core/schemas/PollSchemas';
+import { irvVoteCreationZodSchema } from '../../../../core/schemas/VoteSchema';
+import { VotingSystems } from '../../../../core/schemas/PollSchemas';
 import { withMiddleware } from '../../../../core/api/middlewares';
+import type { ApiSuccess } from '../../../../core/schemas/ApiSchemas';
+import type { Vote } from '../../../../core/schemas/VoteSchema';
 
 async function submitVote(
   req: NextApiRequest,
   res: NextApiResponse<ApiSuccess>
 ) {
-  const vote: Vote = {
-    _id: req.query._id as string,
-    choice: req.body.choice as string,
-  };
+  if (!req.body.VotingSystem) {
+    throw new ApiError(400, 'VotingSystem is required');
+  }
+
+  let vote: Vote;
+  if (req.body.VotingSystem === VotingSystems.IRV) {
+    vote = irvVoteCreationZodSchema.parse({
+      ...req.body,
+      pollId: req.query._id,
+    });
+  } else {
+    vote = {
+      _id: req.query._id as string,
+      choice: req.body.choice as string,
+    };
+  }
+
   await PollService.submitVote(vote);
   res.status(200).json({ message: 'success' });
 }

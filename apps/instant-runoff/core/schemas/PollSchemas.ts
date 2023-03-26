@@ -10,6 +10,12 @@ export const choicesMaxLength = 20;
 const pollTitleMaxLength = 64;
 const pollDescriptionMaxLength = 128;
 
+export const VotingSystems = {
+  IRV: 'IRV',
+  FPP: 'FPP',
+} as const;
+const votingTypes = [VotingSystems.IRV, VotingSystems.FPP] as const;
+
 const PollOptionSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -33,6 +39,13 @@ const PollSchema = new mongoose.Schema<Poll>({
   choices: [PollOptionSchema],
   closed: { type: Boolean, default: false },
   active: { type: Boolean, default: true },
+  type: { type: 'String', enum: votingTypes, default: VotingSystems.IRV },
+  compiledVotes: [
+    {
+      winner: PollOptionSchema,
+      stages: [],
+    },
+  ],
 });
 
 export const PollModel =
@@ -72,6 +85,25 @@ export const PollZodSchema = z.object({
     ),
   closed: z.boolean(),
   active: z.boolean(),
+  type: z.enum(votingTypes),
+  compiledVotes: z
+    .object({
+      winner: z
+        .object({
+          _id: z.string() || z.instanceof(ObjectId),
+          title: z
+            .string()
+            .min(1)
+            .max(
+              choiceMaxLength,
+              `Must be at most ${choiceMaxLength} characters`
+            ),
+          votes: z.number(),
+        })
+        .optional(),
+      stages: z.record(z.number()).array(),
+    })
+    .optional(),
 });
 
 const PollZodCreationSchema = PollZodSchema.omit({
@@ -108,10 +140,3 @@ export type PollCreation = z.infer<typeof PollZodCreationSchema>;
 export type APIPoll = z.infer<typeof APIPollZodSchema>;
 export type PollsList = z.infer<typeof PollsListZodSchema>;
 export type PollWithResult = z.infer<typeof PollWithResultSchema>;
-
-export const voteZodSchema = z.object({
-  _id: z.string(),
-  choice: z.string(),
-});
-
-export type Vote = z.infer<typeof voteZodSchema>;

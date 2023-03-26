@@ -35,6 +35,7 @@ export function CreatePage() {
     choices: [],
     description: '',
     title: '',
+    type: 'IRV',
   };
   const {
     control,
