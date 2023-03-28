@@ -3,11 +3,17 @@ import { z } from 'zod';
 
 const { ObjectId } = mongoose.Types;
 
+export const VotingSystems = {
+  IRV: 'IRV',
+  FPP: 'FPP',
+} as const;
+
 export const irvVoteZodSchema = z.object({
   _id: z.string() || z.instanceof(ObjectId),
   voteMap: z.record(z.string(), z.number()),
   rankingMap: z.record(z.number(), z.string()),
   pollId: z.string() || z.instanceof(ObjectId),
+  VotingSystem: z.enum([VotingSystems.IRV, VotingSystems.FPP]).optional(),
 });
 
 export const irvVoteCreationZodSchema = irvVoteZodSchema
@@ -23,6 +29,7 @@ export const irvVoteCreationZodSchema = irvVoteZodSchema
 const fppVoteZodSchema = z.object({
   _id: z.string(),
   choice: z.string(),
+  VotingSystem: z.enum([VotingSystems.IRV, VotingSystems.FPP]).optional(),
 });
 
 export type FPPVote = z.infer<typeof fppVoteZodSchema>;

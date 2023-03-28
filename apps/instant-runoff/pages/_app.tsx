@@ -1,4 +1,5 @@
 import { AppProps } from 'next/app';
+import { ChakraProvider } from '@chakra-ui/react';
 import Head from 'next/head';
 import Link from 'next/link';
 import PollIcon from '@mui/icons-material/Poll';
@@ -25,7 +26,9 @@ function CustomApp({ Component, pageProps }: AppProps) {
         </Link>
       </nav>
       <main className="app">
-        <Component {...pageProps} />
+        <ChakraProvider>
+          <Component {...pageProps} />
+        </ChakraProvider>
       </main>
     </>
   );

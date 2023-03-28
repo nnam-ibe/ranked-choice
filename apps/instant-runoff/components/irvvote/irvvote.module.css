@@ -1,0 +1,13 @@
+.container {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.badges {
+  margin-bottom: 1rem;
+}
+
+.poll-options {
+  display: grid;
+  gap: 1rem;
+}

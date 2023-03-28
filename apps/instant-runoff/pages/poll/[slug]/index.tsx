@@ -1,20 +1,16 @@
 import { useReducer } from 'react';
-import {
-  Alert,
-  Button,
-  Radio,
-  RadioGroup,
-  Sheet,
-  Stack,
-  Typography,
-} from '@mui/joy';
+import { Alert, AlertIcon, Button, Text, VStack } from '@chakra-ui/react';
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
+import { FPPVote } from '../../../components/fppvote/fppvote';
 import { getErrorMessage } from '../../../core/utils/error';
+import { IRVVote } from '../../../components/irvvote/irvvote';
 import { PollService } from '../../../core/api/PollService';
+import { range } from '../../../core/utils/range';
 import { stringifyData } from '../../../core/utils/stringify';
 import { submitVote } from '../../../lib/client/apiClient';
+import { Vote, VotingSystems } from '../../../core/schemas/VoteSchema';
 import mongoClient from '../../../lib/mongodb';
 import styles from './index.module.css';
 import type { Poll } from '../../../core/schemas/PollSchemas';
@@ -28,8 +24,10 @@ export interface PollProps {
  */
 
 type PollPageState = {
-  alertColor: 'primary' | 'danger' | 'neutral';
   alertMessage: string;
+  alertStatus: 'success' | 'error' | 'info' | 'warning';
+  choiceRank: Record<string, number>;
+  rankChoice: Record<number, string>;
   selectedOption: string;
   showAlert: boolean;
   submitDisabled: boolean;
@@ -38,12 +36,41 @@ type PollPageState = {
 };
 
 type PollPageAction =
+  | { type: 'updateIrvChoice'; newChoice: string; rank: number }
   | {
       type: 'submit' | 'closeAlert';
     }
   | { type: 'selectOption'; option: string }
   | { type: 'submitFailure'; alertMessage: string }
   | { type: 'submitSuccess'; alertMessage: string };
+
+function getInitialChoiceRank(poll: Poll) {
+  return poll.choices.reduce((acc, curr) => {
+    acc[curr.title] = -1;
+    return acc;
+  }, {} as Record<string, number>);
+}
+
+function getInitialRankChoice(poll: Poll) {
+  return range(1, poll.choices.length + 1).reduce((acc, value) => {
+    acc[value] = '';
+    return acc;
+  }, {} as Record<number, string>);
+}
+
+function getIRVUpdate(state: PollPageState, newChoice: string, rank: number) {
+  const { choiceRank, rankChoice } = state;
+
+  const update = { choiceRank, rankChoice };
+  const prevChoice = rankChoice[rank];
+
+  update.rankChoice[rank] = newChoice;
+  update.choiceRank[newChoice] = rank;
+  if (prevChoice) {
+    update.choiceRank[prevChoice] = -1;
+  }
+  return update;
+}
 
 const pollPageReducer = (
   state: PollPageState,
@@ -67,8 +94,8 @@ const pollPageReducer = (
         submitDisabled: false,
         submitLoading: false,
         showAlert: true,
-        alertColor: 'primary',
         alertMessage: action.alertMessage,
+        alertStatus: 'success',
       };
     case 'submitFailure':
       return {
@@ -76,8 +103,14 @@ const pollPageReducer = (
         submitDisabled: false,
         submitLoading: false,
         showAlert: true,
-        alertColor: 'danger',
         alertMessage: action.alertMessage,
+        alertStatus: 'error',
+      };
+
+    case 'updateIrvChoice':
+      return {
+        ...state,
+        ...getIRVUpdate(state, action.newChoice, action.rank),
       };
     default:
       throw new Error('invalid action');
@@ -87,8 +120,10 @@ const pollPageReducer = (
 export function Poll(props: PollProps) {
   const { poll } = props;
   const [state, dispatch] = useReducer(pollPageReducer, {
-    alertColor: 'neutral',
     alertMessage: 'Poll is closed.',
+    alertStatus: 'success',
+    choiceRank: getInitialChoiceRank(poll),
+    rankChoice: getInitialRankChoice(poll),
     selectedOption: '',
     showAlert: poll.closed || false,
     submitDisabled: false,
@@ -96,14 +131,29 @@ export function Poll(props: PollProps) {
     voted: false,
   });
 
-  const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch({ type: 'selectOption', option: event.target.value });
+  const handleOptionChange = (nextValue: string) => {
+    dispatch({ type: 'selectOption', option: nextValue });
   };
 
   const handleSubmit = async () => {
     dispatch({ type: 'submit' });
     try {
-      await submitVote(poll._id as string, state.selectedOption);
+      let data: Vote;
+      if (poll.type === VotingSystems.IRV) {
+        data = {
+          VotingSystem: poll.type,
+          pollId: poll._id,
+          rankingMap: state.rankChoice,
+        };
+      } else {
+        data = {
+          _id: poll._id,
+          choice: state.selectedOption,
+          VotingSystem: poll.type,
+        };
+      }
+
+      await submitVote(poll._id as string, data);
       dispatch({ type: 'submitSuccess', alertMessage: 'Vote submitted!' });
     } catch (error) {
       dispatch({ type: 'submitFailure', alertMessage: getErrorMessage(error) });
@@ -113,67 +163,41 @@ export function Poll(props: PollProps) {
     }, 3000);
   };
 
+  const voteSection =
+    poll.type === 'FPP' ? (
+      <FPPVote
+        poll={poll}
+        value={state.selectedOption}
+        onChange={handleOptionChange}
+      />
+    ) : (
+      <IRVVote
+        poll={poll}
+        rankChoice={state.rankChoice}
+        choiceRank={state.choiceRank}
+        onChange={(newChoice: string, rank: number) =>
+          dispatch({ type: 'updateIrvChoice', newChoice, rank })
+        }
+      />
+    );
+
   return (
     <article className={styles['container']}>
-      <Typography level="h1" sx={{ mb: 0.5 }}>
-        {poll.title}
-      </Typography>
-      <Typography level="body1" sx={{ mb: 1 }}>
-        {poll.description}
-      </Typography>
-      <Stack spacing={2}>
+      <Text fontSize="2xl">{poll.title}</Text>
+      <Text fontSize="xl">{poll.description}</Text>
+      <VStack spacing={2}>
         {state.showAlert && (
-          <Alert className={styles['alert']} color={state.alertColor}>
+          <Alert status={state.alertStatus}>
+            {state.alertStatus === 'error' && <AlertIcon />}
             {state.alertMessage}
           </Alert>
         )}
-        <RadioGroup
-          size="lg"
-          sx={{ gap: 1.5 }}
-          value={state.selectedOption}
-          onChange={handleOptionChange}
-        >
-          {poll.choices.map(({ title }) => (
-            <Sheet key={title}>
-              <Radio
-                label={title}
-                overlay
-                disableIcon
-                value={title}
-                slotProps={{
-                  label: ({ checked }) => ({
-                    sx: {
-                      fontWeight: 'lg',
-                      fontSize: 'md',
-                      color: checked ? 'text.primary' : 'text.secondary',
-                      padding: '1rem',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    },
-                  }),
-                  action: ({ checked }) => ({
-                    sx: (theme) => ({
-                      ...(checked && {
-                        '--variant-borderWidth': '2px',
-                        '&&': {
-                          // && to increase the specificity to win the base :hover styles
-                          borderColor: theme.vars.palette.primary[500],
-                        },
-                      }),
-                    }),
-                  }),
-                }}
-              />
-            </Sheet>
-          ))}
-        </RadioGroup>
+        {voteSection}
         <Button
-          title="Submit Vote!"
+          colorScheme={'blue'}
           onClick={handleSubmit}
-          disabled={poll.closed || state.voted || state.submitDisabled}
-          loading={state.submitLoading}
+          isDisabled={poll.closed || state.voted || state.submitDisabled}
+          isLoading={state.submitLoading}
           size="lg"
         >
           {state.voted ? 'Voted!' : 'Submit Vote!'}
@@ -183,7 +207,7 @@ export function Poll(props: PollProps) {
             <Link href={`/poll/${poll._id}/result`}>View Results →</Link>
           </div>
         )}
-      </Stack>
+      </VStack>
     </article>
   );
 }

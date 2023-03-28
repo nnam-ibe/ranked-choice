@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import { z } from 'zod';
 
+import { VotingSystems } from './VoteSchema';
+
 const { ObjectId } = mongoose.Types;
 
 export const choiceMaxLength = 32;
@@ -10,10 +12,6 @@ export const choicesMaxLength = 20;
 const pollTitleMaxLength = 64;
 const pollDescriptionMaxLength = 128;
 
-export const VotingSystems = {
-  IRV: 'IRV',
-  FPP: 'FPP',
-} as const;
 const votingTypes = [VotingSystems.IRV, VotingSystems.FPP] as const;
 
 const PollOptionSchema = new mongoose.Schema({
@@ -53,6 +51,24 @@ export const PollModel =
   mongoose.model('Poll', PollSchema);
 
 // ZOD SCHEMAS
+const compiledVotes = z
+  .object({
+    winner: z
+      .object({
+        _id: z.string() || z.instanceof(ObjectId),
+        title: z
+          .string()
+          .min(1)
+          .max(
+            choiceMaxLength,
+            `Must be at most ${choiceMaxLength} characters`
+          ),
+        votes: z.number(),
+      })
+      .optional(),
+    stages: z.record(z.number()).array(),
+  })
+  .optional();
 
 export const PollZodSchema = z.object({
   _id: z.string() || z.instanceof(ObjectId),
@@ -86,24 +102,7 @@ export const PollZodSchema = z.object({
   closed: z.boolean(),
   active: z.boolean(),
   type: z.enum(votingTypes),
-  compiledVotes: z
-    .object({
-      winner: z
-        .object({
-          _id: z.string() || z.instanceof(ObjectId),
-          title: z
-            .string()
-            .min(1)
-            .max(
-              choiceMaxLength,
-              `Must be at most ${choiceMaxLength} characters`
-            ),
-          votes: z.number(),
-        })
-        .optional(),
-      stages: z.record(z.number()).array(),
-    })
-    .optional(),
+  compiledVotes,
 });
 
 const PollZodCreationSchema = PollZodSchema.omit({
@@ -133,6 +132,7 @@ export const PollsListZodSchema = PollZodSchema.pick({
 
 const PollWithResultSchema = PollZodSchema.extend({
   totalVotes: z.number(),
+  compiledVotes,
 });
 
 export type Poll = z.infer<typeof PollZodSchema>;

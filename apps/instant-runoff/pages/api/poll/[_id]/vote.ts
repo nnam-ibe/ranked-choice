@@ -2,8 +2,10 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 import { ApiError } from 'next/dist/server/api-utils';
 import { PollService } from '../../../../core/api/PollService';
-import { irvVoteCreationZodSchema } from '../../../../core/schemas/VoteSchema';
-import { VotingSystems } from '../../../../core/schemas/PollSchemas';
+import {
+  irvVoteCreationZodSchema,
+  VotingSystems,
+} from '../../../../core/schemas/VoteSchema';
 import { withMiddleware } from '../../../../core/api/middlewares';
 import type { ApiSuccess } from '../../../../core/schemas/ApiSchemas';
 import type { Vote } from '../../../../core/schemas/VoteSchema';

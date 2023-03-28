@@ -1,8 +1,13 @@
 import mongoose from 'mongoose';
 import { ApiError } from 'next/dist/server/api-utils';
 
-import { PollModel, VotingSystems } from '../schemas/PollSchemas';
-import { IRVVoteModel, isIRVVote, Vote } from '../schemas/VoteSchema';
+import { PollModel } from '../schemas/PollSchemas';
+import {
+  IRVVoteModel,
+  isIRVVote,
+  Vote,
+  VotingSystems,
+} from '../schemas/VoteSchema';
 import type {
   Poll,
   PollCreation,
@@ -86,7 +91,7 @@ export const PollService = {
   getResult: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
 
-    const poll = await PollModel.aggregate<PollWithResult>([
+    const polls = await PollModel.aggregate<PollWithResult>([
       { $match: { _id: pollId } },
       {
         $addFields: {
@@ -94,9 +99,15 @@ export const PollService = {
         },
       },
     ]);
-    if (!poll[0]) throw new ApiError(403, 'Poll not found');
+    if (!polls[0]) throw new ApiError(403, 'Poll not found');
+    const [poll] = polls;
+    if (poll.type === VotingSystems.IRV) {
+      const irvVotes = await IRVVoteModel.find<IRVVote>({ pollId });
+      const compiledVotes = compileRankedVoting(poll, irvVotes);
+      poll.compiledVotes = compiledVotes;
+    }
 
-    return poll[0];
+    return poll;
   },
   submitVote: async (vote: Vote) => {
     if (!isIRVVote(vote)) {
