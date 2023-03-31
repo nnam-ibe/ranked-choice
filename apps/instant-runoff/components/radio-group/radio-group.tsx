@@ -1,4 +1,4 @@
-import { Box, useRadio, useRadioGroup, HStack } from '@chakra-ui/react';
+import { Box, useRadio, useRadioGroup, VStack } from '@chakra-ui/react';
 import type { UseRadioProps } from '@chakra-ui/react';
 
 import styles from './radio-group.module.css';
@@ -19,7 +19,7 @@ export function RadioGroup(props: RadioGroupProps) {
   const group = getRootProps();
 
   return (
-    <HStack {...group} className={styles.container}>
+    <VStack {...group} className={styles.container}>
       {options.map((value) => {
         const radio = getRadioProps({ value });
         return (
@@ -28,7 +28,7 @@ export function RadioGroup(props: RadioGroupProps) {
           </RadioCard>
         );
       })}
-    </HStack>
+    </VStack>
   );
 }
 
@@ -41,9 +41,10 @@ function RadioCard(props: RadioCardProps) {
   const checkbox = getRadioProps();
 
   return (
-    <Box as="label">
+    <Box as="label" className={styles['radio-card-box']}>
       <input {...input} />
       <Box
+        className={styles['radio-card-box']}
         {...checkbox}
         cursor="pointer"
         borderWidth="1px"
