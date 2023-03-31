@@ -277,3 +277,8 @@ nav {
   background-color: hsla(214, 62%, 21%, 1);
   box-shadow: 0 2px 5px #0070f3;
 }
+
+.required-field::after {
+  content: ' *';
+  color: red;
+}
