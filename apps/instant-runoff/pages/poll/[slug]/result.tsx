@@ -1,12 +1,17 @@
 import {
   Alert,
-  Box,
-  List,
-  ListItem,
-  ListItemContent,
-  ListDivider,
-  Typography,
-} from '@mui/joy';
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 
@@ -14,10 +19,10 @@ import { PollService } from '../../../core/api/PollService';
 import { stringifyData } from '../../../core/utils/stringify';
 import mongoClient from '../../../lib/mongodb';
 import styles from './result.module.css';
-import type { Poll } from '../../../core/schemas/PollSchemas';
+import type { PollWithResult } from '../../../core/schemas/PollSchemas';
 
 export interface ResultProps {
-  poll: Partial<Poll>;
+  poll: Partial<PollWithResult>;
 }
 
 /**
@@ -30,18 +35,14 @@ export function ResultPage(props: ResultProps) {
   if (!poll.closed) {
     return (
       <article className={styles['container']}>
-        <Typography level="h2" sx={{ mb: 0.5 }}>
-          {poll.title} Results
-        </Typography>
-        <Typography level="body1">{poll.description}</Typography>
-        <Box>
-          <Alert className={styles['alert']} color="info">
-            {'Poll is still open'}
-          </Alert>
+        <Text fontSize="2xl">{poll.title} Results</Text>
+        <Text fontSize="xl">{poll.description}</Text>
+        <VStack>
+          <Alert status="info">{'Poll is still open'}</Alert>
           <div className={styles.viewResults}>
             <Link href={`/poll/${poll._id}`}>← Back to Poll</Link>
           </div>
-        </Box>
+        </VStack>
       </article>
     );
   }
@@ -50,39 +51,35 @@ export function ResultPage(props: ResultProps) {
 
   return (
     <article className={styles['container']}>
-      <Typography level="h2" sx={{ mb: 0.5 }}>
-        {poll.title} Results
-      </Typography>
-      <Typography level="body1">{poll.description}</Typography>
-      <Box>
-        <List aria-label="Results">
-          {sortedChoices?.map((option) => {
-            return (
-              <div key={option._id}>
-                <ListDivider />
-                <ListItem key={option._id as string}>
-                  <ListItemContent
-                    sx={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: '3',
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {option.title}
-                  </ListItemContent>
-                  <Typography
-                    level="body2"
-                    sx={{ fontWeight: 'bold', color: 'inherit' }}
-                  >
-                    {option.votes}
-                  </Typography>
-                </ListItem>
-              </div>
-            );
-          })}
-        </List>
-      </Box>
+      <Text fontSize="2xl">{poll.title} Results</Text>
+      <Text fontSize="xl">{poll.description}</Text>
+      <TableContainer>
+        <Table variant="simple">
+          <TableCaption>Poll Results</TableCaption>
+          <Thead>
+            <Tr>
+              <Th>Option</Th>
+              <Th isNumeric>Votes</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {sortedChoices?.map((option) => {
+              return (
+                <Tr key={option._id}>
+                  <Td>{option.title}</Td>
+                  <Td isNumeric>{option.votes}</Td>
+                </Tr>
+              );
+            })}
+          </Tbody>
+          <Tfoot>
+            <Tr>
+              <Th>Total Votes</Th>
+              <Th isNumeric>{poll.totalVotes}</Th>
+            </Tr>
+          </Tfoot>
+        </Table>
+      </TableContainer>
     </article>
   );
 }
@@ -92,7 +89,7 @@ type ServerSideResult = GetServerSideProps<ResultProps, ServerSideParams>;
 
 export const getServerSideProps: ServerSideResult = async ({ params }) => {
   await mongoClient;
-  const poll = await PollService.getPoll(params?.slug ?? '');
+  const poll = await PollService.getResult(params?.slug ?? '');
 
   const result = poll.closed
     ? poll
