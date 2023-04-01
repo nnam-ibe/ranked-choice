@@ -1,20 +1,18 @@
 import mongoose from 'mongoose';
 import { ApiError } from 'next/dist/server/api-utils';
-
-import { PollModel } from '../schemas/PollSchemas';
-import {
-  IRVVoteModel,
-  isIRVVote,
-  Vote,
-  VotingSystems,
-} from '../schemas/VoteSchema';
+import { VotingSystem } from '@ranked-choice-voting/constants';
+import { isIRVVote } from '@ranked-choice-voting/types';
 import type {
+  IRVVote,
   Poll,
   PollCreation,
   PollsList,
   PollWithResult,
-} from '../schemas/PollSchemas';
-import type { IRVVote } from '../schemas/VoteSchema';
+  Vote,
+} from '@ranked-choice-voting/types';
+
+import { PollModel } from '../schemas/PollSchemas';
+import { IRVVoteModel } from '../schemas/VoteSchema';
 
 const { ObjectId } = mongoose.Types;
 
@@ -36,7 +34,7 @@ export const PollService = {
   calculateResult: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
     const poll = await PollModel.findOne<Poll>({ _id: pollId });
-    if (poll?.type !== VotingSystems.IRV) {
+    if (poll?.type !== VotingSystem.IRV) {
       throw new ApiError(403, 'Can only calculate result for IRV polls');
     }
     const votes = await IRVVoteModel.find<IRVVote>({ pollId });
@@ -101,7 +99,7 @@ export const PollService = {
     ]);
     if (!polls[0]) throw new ApiError(403, 'Poll not found');
     const [poll] = polls;
-    if (poll.type === VotingSystems.IRV) {
+    if (poll.type === VotingSystem.IRV) {
       const irvVotes = await IRVVoteModel.find<IRVVote>({ pollId });
       const compiledVotes = compileRankedVoting(poll, irvVotes);
       poll.compiledVotes = compiledVotes;

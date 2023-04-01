@@ -1,12 +1,12 @@
 import { Text } from '@chakra-ui/react';
 import type { GetServerSideProps } from 'next';
+import type { PollWithResult } from '@ranked-choice-voting/types';
 
 import { AppTable } from '../../../components/app-table/app-table';
 import { PollService } from '../../../core/api/PollService';
 import { stringifyData } from '../../../core/utils/stringify';
 import mongoClient from '../../../lib/mongodb';
 import styles from './result.module.css';
-import type { PollWithResult } from '../../../core/schemas/PollSchemas';
 
 export type ResultProps = {
   poll: Partial<PollWithResult>;

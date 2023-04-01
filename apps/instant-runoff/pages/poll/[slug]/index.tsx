@@ -2,6 +2,8 @@ import { useReducer } from 'react';
 import { Alert, AlertIcon, Button, Text, VStack } from '@chakra-ui/react';
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
+import { VotingSystem } from '@ranked-choice-voting/constants';
+import type { Poll, Vote } from '@ranked-choice-voting/types';
 
 import { FPPVote } from '../../../components/fppvote/fppvote';
 import { getErrorMessage } from '../../../core/utils/error';
@@ -10,14 +12,12 @@ import { PollService } from '../../../core/api/PollService';
 import { range } from '../../../core/utils/range';
 import { stringifyData } from '../../../core/utils/stringify';
 import { submitVote } from '../../../lib/client/apiClient';
-import { Vote, VotingSystems } from '../../../core/schemas/VoteSchema';
 import mongoClient from '../../../lib/mongodb';
 import styles from './index.module.css';
-import type { Poll } from '../../../core/schemas/PollSchemas';
 
-export interface PollProps {
+type PollProps = {
   poll: Poll;
-}
+};
 
 type PollPageState = {
   alertMessage: string;
@@ -136,7 +136,7 @@ export function Poll(props: PollProps) {
     dispatch({ type: 'submit' });
     try {
       let data: Vote;
-      if (poll.type === VotingSystems.IRV) {
+      if (poll.type === VotingSystem.IRV) {
         data = {
           VotingSystem: poll.type,
           pollId: poll._id,

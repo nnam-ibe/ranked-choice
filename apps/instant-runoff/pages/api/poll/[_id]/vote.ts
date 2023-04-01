@@ -1,14 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-
 import { ApiError } from 'next/dist/server/api-utils';
+import { VotingSystem } from '@ranked-choice-voting/constants';
+import { irvVoteCreationZodSchema } from '@ranked-choice-voting/types';
+import type { ApiSuccess, Vote } from '@ranked-choice-voting/types';
+
 import { PollService } from '../../../../core/api/PollService';
-import {
-  irvVoteCreationZodSchema,
-  VotingSystems,
-} from '../../../../core/schemas/VoteSchema';
 import { withMiddleware } from '../../../../core/api/middlewares';
-import type { ApiSuccess } from '../../../../core/schemas/ApiSchemas';
-import type { Vote } from '../../../../core/schemas/VoteSchema';
 
 async function submitVote(
   req: NextApiRequest,
@@ -19,7 +16,7 @@ async function submitVote(
   }
 
   let vote: Vote;
-  if (req.body.VotingSystem === VotingSystems.IRV) {
+  if (req.body.VotingSystem === VotingSystem.IRV) {
     vote = irvVoteCreationZodSchema.parse({
       ...req.body,
       pollId: req.query._id,

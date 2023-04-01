@@ -3,11 +3,11 @@ import type { UseRadioProps } from '@chakra-ui/react';
 
 import styles from './radio-group.module.css';
 
-export interface RadioGroupProps {
+type RadioGroupProps = {
   options: string[];
   onChange: (nextValue: string) => void;
   value: string;
-}
+};
 export function RadioGroup(props: RadioGroupProps) {
   const { options, onChange, value } = props;
 

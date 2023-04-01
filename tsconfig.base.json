@@ -15,7 +15,10 @@
     "skipDefaultLibCheck": true,
     "strict": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@ranked-choice-voting/types": ["libs/types/src/index.ts"],
+      "@ranked-choice-voting/constants": ["libs/constants/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

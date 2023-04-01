@@ -1,10 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { PollAPIZodSchema } from '@ranked-choice-voting/types';
+import type {
+  APIPoll,
+  ApiSuccess,
+  PollCreation,
+} from '@ranked-choice-voting/types';
 
 import { PollService } from '../../../core/api/PollService';
-import { APIPollZodSchema } from '../../../core/schemas/PollSchemas';
 import { withMiddleware } from '../../../core/api/middlewares';
-import type { APIPoll, PollCreation } from '../../../core/schemas/PollSchemas';
-import type { ApiSuccess } from '../../../core/schemas/ApiSchemas';
 
 function getPollFromAPI(poll: APIPoll): PollCreation {
   const choices = poll.choices.map((title) => ({
@@ -22,7 +25,7 @@ async function createPoll(
   req: NextApiRequest,
   res: NextApiResponse<ApiSuccess>
 ) {
-  const poll = APIPollZodSchema.parse(req.body);
+  const poll = PollAPIZodSchema.parse(req.body);
 
   await PollService.createPoll(getPollFromAPI(poll));
   res.status(200).json({ message: 'success' });

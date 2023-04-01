@@ -1,12 +1,12 @@
+import type { Poll } from '@ranked-choice-voting/types';
+
 import { RadioGroup } from '../radio-group/radio-group';
 
-import type { Poll } from '../../core/schemas/PollSchemas';
-
-export interface FPPVoteProps {
+type FPPVoteProps = {
   poll: Poll;
   onChange: (nextValue: string) => void;
   value: string;
-}
+};
 
 export function FPPVote(props: FPPVoteProps) {
   const { poll, value, onChange } = props;

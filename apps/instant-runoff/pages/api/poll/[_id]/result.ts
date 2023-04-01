@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import type { PollWithResult } from '@ranked-choice-voting/types';
 
 import { PollService } from '../../../../core/api/PollService';
-import type { PollWithResult } from '../../../../core/schemas/PollSchemas';
 import { withMiddleware } from '../../../../core/api/middlewares';
 
 async function getVoteResult(

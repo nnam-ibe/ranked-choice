@@ -1,5 +1,4 @@
-import { APIPoll } from '../../core/schemas/PollSchemas';
-import type { Vote } from '../../core/schemas/VoteSchema';
+import type { APIPoll, Vote } from '@ranked-choice-voting/types';
 
 async function handleApiResponse(res: Response) {
   const data = await res.json();

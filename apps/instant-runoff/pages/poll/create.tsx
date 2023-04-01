@@ -17,14 +17,12 @@ import {
 } from '@chakra-ui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { choiceMaxLength } from '@ranked-choice-voting/constants';
+import { PollAPIZodSchema } from '@ranked-choice-voting/types';
+import type { APIPoll } from '@ranked-choice-voting/types';
 
-import {
-  choiceMaxLength,
-  APIPollZodSchema,
-} from '../../core/schemas/PollSchemas';
 import { createPoll } from '../../lib/client/apiClient';
 import styles from './create.module.css';
-import type { APIPoll } from '../../core/schemas/PollSchemas';
 import utilStyles from '../../styles/utils.module.css';
 
 /**
@@ -50,7 +48,7 @@ export function CreatePage() {
     setValue,
     trigger,
   } = useForm({
-    resolver: zodResolver(APIPollZodSchema),
+    resolver: zodResolver(PollAPIZodSchema),
     defaultValues,
   });
 

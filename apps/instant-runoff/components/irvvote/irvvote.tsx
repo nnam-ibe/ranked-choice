@@ -1,18 +1,19 @@
 import React from 'react';
 import { FormControl, FormLabel, Select, Tag } from '@chakra-ui/react';
+import type { Poll } from '@ranked-choice-voting/types';
 
 import { range } from '../../core/utils/range';
 import { toOrdinalNumber } from '../../core/utils/numberFormatter';
 import styles from './irvvote.module.css';
-import type { Poll } from '../../core/schemas/PollSchemas';
+
 import utilStyles from '../../styles/utils.module.css';
 
-export interface IRVVoteProps {
+type IRVVoteProps = {
   poll: Poll;
   rankChoice: Record<number, string>;
   choiceRank: Record<string, number>;
   onChange: (nextValue: string, rank: number) => void;
-}
+};
 
 export function IRVVote(props: IRVVoteProps) {
   const { choiceRank, onChange, poll, rankChoice } = props;
