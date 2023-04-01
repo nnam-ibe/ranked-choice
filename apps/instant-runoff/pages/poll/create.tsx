@@ -24,6 +24,7 @@ import {
 import { createPoll } from '../../lib/client/apiClient';
 import styles from './create.module.css';
 import type { APIPoll } from '../../core/schemas/PollSchemas';
+import utilStyles from '../../styles/utils.module.css';
 
 /**
 TODO: Add error alert
@@ -178,7 +179,7 @@ export function CreatePage() {
               <FormHelperText>Poll choices to vote on</FormHelperText>
             )}
             {
-              <div className={styles.tagContainer}>
+              <div className={utilStyles.tagContainer}>
                 {Array.from(items).map((item) => (
                   <Tag
                     colorScheme="blue"

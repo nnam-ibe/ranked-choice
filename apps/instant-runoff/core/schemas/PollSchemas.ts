@@ -38,12 +38,12 @@ const PollSchema = new mongoose.Schema<Poll>({
   closed: { type: Boolean, default: false },
   active: { type: Boolean, default: true },
   type: { type: 'String', enum: votingTypes, default: VotingSystems.IRV },
-  compiledVotes: [
-    {
-      winner: PollOptionSchema,
-      stages: [],
-    },
-  ],
+  compiledVotes: {
+    winner: PollOptionSchema,
+    stages: [],
+    numberOfVotes: Number,
+    threshold: Number,
+  },
 });
 
 export const PollModel =
@@ -67,6 +67,8 @@ const compiledVotes = z
       })
       .optional(),
     stages: z.record(z.number()).array(),
+    numberOfVotes: z.number().optional(),
+    threshold: z.number().optional(),
   })
   .optional();
 

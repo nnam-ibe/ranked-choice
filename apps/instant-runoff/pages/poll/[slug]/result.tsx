@@ -1,85 +1,108 @@
-import {
-  Alert,
-  Table,
-  TableCaption,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Tfoot,
-  Th,
-  Thead,
-  Tr,
-  VStack,
-} from '@chakra-ui/react';
-import Link from 'next/link';
+import { Text } from '@chakra-ui/react';
 import type { GetServerSideProps } from 'next';
 
+import { AppTable } from '../../../components/app-table/app-table';
 import { PollService } from '../../../core/api/PollService';
 import { stringifyData } from '../../../core/utils/stringify';
 import mongoClient from '../../../lib/mongodb';
 import styles from './result.module.css';
 import type { PollWithResult } from '../../../core/schemas/PollSchemas';
 
-export interface ResultProps {
+export type ResultProps = {
   poll: Partial<PollWithResult>;
+};
+
+type Stage = NonNullable<
+  ResultProps['poll']['compiledVotes']
+>['stages'][number];
+
+function getSortedStage(stage: Stage) {
+  const keys = Object.keys(stage);
+  const stagesAsArray = keys.map((key) => ({ title: key, votes: stage[key] }));
+  return stagesAsArray?.sort((a, b) => b.votes - a.votes);
 }
 
-/**
-- TODO: Click to expand for ItemContent lines that run too long
- */
+function FPPResult(props: { poll: ResultProps['poll'] }) {
+  const { poll } = props;
+  const sortedChoices = poll.choices?.sort((a, b) => b.votes - a.votes);
+  if (!sortedChoices) return null;
+
+  return (
+    <AppTable
+      headers={[{ title: 'Option' }, { title: 'Votes', isNumeric: true }]}
+      caption="Poll Results"
+      data={sortedChoices?.map((option, index) => ({
+        id: option._id,
+        Option: option.title,
+        Votes: option.votes,
+        highlighted: index === 0,
+      }))}
+      footer={[
+        { title: 'Total Votes' },
+        { title: poll.totalVotes ?? 0, isNumeric: true },
+      ]}
+    />
+  );
+}
+
+function IRVResult(props: { poll: ResultProps['poll'] }) {
+  const { poll } = props;
+  if (!poll?.compiledVotes) return null;
+  const { compiledVotes } = poll;
+  return (
+    <div className={styles.irvContainer}>
+      {compiledVotes.stages.map((stage, stageNumber) => {
+        const sortedStage = getSortedStage(stage);
+        return (
+          <div key={stageNumber} className={styles.irvStage}>
+            <AppTable
+              headers={[
+                { title: 'Option' },
+                { title: 'Votes', isNumeric: true },
+              ]}
+              caption={`Stage ${stageNumber + 1} (${
+                compiledVotes.threshold
+              } votes needed)`}
+              data={sortedStage?.map((option, row) => ({
+                id: option.title,
+                Option: option.title,
+                Votes: option.votes,
+                eliminated: poll.choices?.length
+                  ? poll.choices?.length - stageNumber === row
+                  : false,
+                highlighted:
+                  compiledVotes?.winner?.title === option.title &&
+                  stageNumber === compiledVotes.stages.length - 1,
+              }))}
+              footer={[
+                { title: 'Total Votes' },
+                { title: compiledVotes.numberOfVotes ?? 0, isNumeric: true },
+              ]}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function ResultPage(props: ResultProps) {
   const { poll } = props;
 
-  if (!poll.closed) {
-    return (
-      <article className={styles['container']}>
-        <Text fontSize="2xl">{poll.title} Results</Text>
-        <Text fontSize="xl">{poll.description}</Text>
-        <VStack>
-          <Alert status="info">{'Poll is still open'}</Alert>
-          <div className={styles.viewResults}>
-            <Link href={`/poll/${poll._id}`}>← Back to Poll</Link>
-          </div>
-        </VStack>
-      </article>
-    );
-  }
-
   const sortedChoices = poll.choices?.sort((a, b) => b.votes - a.votes);
+  if (!sortedChoices) return null;
 
   return (
     <article className={styles['container']}>
-      <Text fontSize="2xl">{poll.title} Results</Text>
-      <Text fontSize="xl">{poll.description}</Text>
-      <TableContainer>
-        <Table variant="simple">
-          <TableCaption>Poll Results</TableCaption>
-          <Thead>
-            <Tr>
-              <Th>Option</Th>
-              <Th isNumeric>Votes</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {sortedChoices?.map((option) => {
-              return (
-                <Tr key={option._id}>
-                  <Td>{option.title}</Td>
-                  <Td isNumeric>{option.votes}</Td>
-                </Tr>
-              );
-            })}
-          </Tbody>
-          <Tfoot>
-            <Tr>
-              <Th>Total Votes</Th>
-              <Th isNumeric>{poll.totalVotes}</Th>
-            </Tr>
-          </Tfoot>
-        </Table>
-      </TableContainer>
+      <Text fontSize="2xl" fontWeight={800}>
+        {poll.title} Results
+      </Text>
+      <Text fontSize="xl==lg">{poll.description}</Text>
+      {poll.type === 'IRV' ? (
+        <IRVResult poll={poll} />
+      ) : (
+        <FPPResult poll={poll} />
+      )}
     </article>
   );
 }
@@ -91,18 +114,9 @@ export const getServerSideProps: ServerSideResult = async ({ params }) => {
   await mongoClient;
   const poll = await PollService.getResult(params?.slug ?? '');
 
-  const result = poll.closed
-    ? poll
-    : {
-        _id: poll._id,
-        closed: poll.closed,
-        title: poll.title,
-        description: poll.description,
-      };
-
   return {
     props: {
-      poll: stringifyData(result),
+      poll: stringifyData(poll),
     },
   };
 };

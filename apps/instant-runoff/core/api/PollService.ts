@@ -54,7 +54,7 @@ export const PollService = {
     const doc = new PollModel(poll);
     await doc.save();
   },
-  deactivePoll: async (pollIdString: string) => {
+  deactivatePoll: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
     const result = await PollModel.updateOne(
       { _id: pollId },
@@ -196,17 +196,19 @@ export function compileRankedVoting(
   compiledVotes.stages.push(voteStage);
 
   const winner = choices.find((choice) => {
-    const votesRecieved = voteCounts.get(choice.title);
-    if (votesRecieved === undefined) return false;
-    return votesRecieved >= threshold;
+    const votesReceived = voteCounts.get(choice.title);
+    if (votesReceived === undefined) return false;
+    return votesReceived >= threshold;
   });
 
   if (winner) {
     compiledVotes.winner = winner;
+    compiledVotes.numberOfVotes = numberOfVotes;
+    compiledVotes.threshold = threshold;
     return compiledVotes;
   }
 
-  // Elimate the lowest ranked choice
+  // Eliminate the lowest ranked choice
   let lowestChoice = choices[0];
   choices.forEach((choice) => {
     const lowestChoiceVotes = voteCounts.get(lowestChoice.title) ?? 0;

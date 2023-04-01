@@ -24,6 +24,9 @@ async function submitVote(
       ...req.body,
       pollId: req.query._id,
     });
+    if (!vote.rankingMap[1]) {
+      throw new ApiError(400, 'Top ranked candidate is required');
+    }
   } else {
     vote = {
       _id: req.query._id as string,

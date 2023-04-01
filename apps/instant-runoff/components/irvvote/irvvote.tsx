@@ -1,16 +1,11 @@
 import React from 'react';
-import {
-  Badge,
-  FormControl,
-  FormLabel,
-  HStack,
-  Select,
-} from '@chakra-ui/react';
+import { FormControl, FormLabel, Select, Tag } from '@chakra-ui/react';
 
 import { range } from '../../core/utils/range';
 import { toOrdinalNumber } from '../../core/utils/numberFormatter';
 import styles from './irvvote.module.css';
 import type { Poll } from '../../core/schemas/PollSchemas';
+import utilStyles from '../../styles/utils.module.css';
 
 export interface IRVVoteProps {
   poll: Poll;
@@ -24,20 +19,29 @@ export function IRVVote(props: IRVVoteProps) {
 
   return (
     <div className={styles.container}>
-      <HStack className={styles.badges}>
+      <div className={utilStyles.tagContainer}>
         {poll.choices.map((item) => (
-          <Badge key={item._id} colorScheme="blue" size="lg">
+          <Tag
+            key={item._id}
+            colorScheme="blue"
+            size="lg"
+            borderRadius="full"
+            variant="solid"
+          >
             {item.title}
-          </Badge>
+          </Tag>
         ))}
-      </HStack>
+      </div>
       <div className={styles['poll-options']}>
         {range(poll.choices.length).map((i) => {
           const rank = i + 1;
           const rankText = toOrdinalNumber(rank);
+          const labelClassName = i === 0 ? 'required-field' : '';
           return (
             <FormControl key={poll.choices[i]._id}>
-              <FormLabel>{rankText} Choice</FormLabel>
+              <FormLabel className={labelClassName}>
+                {rankText} Choice
+              </FormLabel>
               <Select
                 placeholder="Select an option"
                 data-rank={rank}

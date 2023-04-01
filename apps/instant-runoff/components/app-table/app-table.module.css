@@ -1,0 +1,7 @@
+.appTable {
+  table-layout: fixed;
+}
+
+.highlighted {
+  background-color: var(--primary-color-dark);
+}

@@ -19,10 +19,6 @@ export interface PollProps {
   poll: Poll;
 }
 
-/**
-- TODO: Change alert to snakbar
- */
-
 type PollPageState = {
   alertMessage: string;
   alertStatus: 'success' | 'error' | 'info' | 'warning';
@@ -86,7 +82,7 @@ const pollPageReducer = (
         ...state,
         submitDisabled: true,
         submitLoading: true,
-        voted: true,
+        showAlert: false,
       };
     case 'submitSuccess':
       return {
@@ -96,6 +92,7 @@ const pollPageReducer = (
         showAlert: true,
         alertMessage: action.alertMessage,
         alertStatus: 'success',
+        voted: true,
       };
     case 'submitFailure':
       return {
@@ -160,7 +157,7 @@ export function Poll(props: PollProps) {
     }
     setTimeout(() => {
       dispatch({ type: 'closeAlert' });
-    }, 3000);
+    }, 7000);
   };
 
   const voteSection =
@@ -187,7 +184,7 @@ export function Poll(props: PollProps) {
       <Text fontSize="xl">{poll.description}</Text>
       <VStack spacing={2}>
         {state.showAlert && (
-          <Alert status={state.alertStatus}>
+          <Alert status={state.alertStatus} className="alert-container">
             {state.alertStatus === 'error' && <AlertIcon />}
             {state.alertMessage}
           </Alert>
@@ -199,6 +196,7 @@ export function Poll(props: PollProps) {
           isDisabled={poll.closed || state.voted || state.submitDisabled}
           isLoading={state.submitLoading}
           size="lg"
+          width={'100%'}
         >
           {state.voted ? 'Voted!' : 'Submit Vote!'}
         </Button>

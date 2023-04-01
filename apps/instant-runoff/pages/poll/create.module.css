@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: var(--content-height);
   padding: 1rem;
   max-width: 800px;
   margin-left: auto;
@@ -10,12 +10,4 @@
 
 .stack {
   flex: 1;
-}
-
-.tagContainer {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }
