@@ -11,3 +11,9 @@
 .stack {
   flex: 1;
 }
+
+.switchContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}

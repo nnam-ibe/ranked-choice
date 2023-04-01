@@ -168,16 +168,19 @@ export function compileRankedVoting(
   votes: IRVVote[],
   compiledVotes?: Poll['compiledVotes']
 ): Poll['compiledVotes'] {
+  const numberOfVotes = votes.length;
+  const threshold = Math.floor(numberOfVotes / 2) + 1;
+
   if (!compiledVotes) {
     compiledVotes = {
       stages: [],
+      numberOfVotes: numberOfVotes,
+      threshold: threshold,
     };
   }
 
   const { choices } = poll;
 
-  const numberOfVotes = votes.length;
-  const threshold = Math.floor(numberOfVotes / 2) + 1;
   const voteCounts = new Map<string, number>(choices.map((c) => [c.title, 0]));
   const topVoteMap = new Map<string, string>();
 
@@ -203,8 +206,12 @@ export function compileRankedVoting(
 
   if (winner) {
     compiledVotes.winner = winner;
-    compiledVotes.numberOfVotes = numberOfVotes;
-    compiledVotes.threshold = threshold;
+    return compiledVotes;
+  }
+
+  // Check if no candidate can achieve a majority
+  const numberOfChoice = choices.length;
+  if (numberOfChoice - compiledVotes.stages.length === 1) {
     return compiledVotes;
   }
 

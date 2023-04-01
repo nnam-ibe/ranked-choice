@@ -8,6 +8,7 @@ import {
   Input,
   InputGroup,
   InputRightAddon,
+  Switch,
   Tag,
   TagCloseButton,
   TagLabel,
@@ -105,9 +106,11 @@ export function CreatePage() {
           className={styles['stack']}
           direction="column"
           justifyContent="center"
-          spacing={2}
+          spacing={4}
         >
-          <Text fontSize="lg">Create a Poll</Text>
+          <Text fontSize="2xl" fontWeight={800}>
+            Create a Poll
+          </Text>
           <FormControl isInvalid={!!errors?.title}>
             <FormLabel className="required-field">Poll Title</FormLabel>
             <Controller
@@ -157,7 +160,7 @@ export function CreatePage() {
                 placeholder="Monday"
                 value={currentItem}
                 onChange={(e) => setCurrentItem(e.target.value)}
-                maxLength={choiceMaxLength}
+                maxLength={64}
               />
               <InputRightAddon px="0">
                 <Button
@@ -194,6 +197,23 @@ export function CreatePage() {
                 ))}
               </div>
             }
+          </FormControl>
+          <FormControl className={styles.switchContainer}>
+            <FormLabel>Ranked Choice Voting</FormLabel>
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <Switch
+                  onChange={(e) => {
+                    const value = e.target.checked ? 'IRV' : 'FPP';
+                    setValue('type', value);
+                  }}
+                  isChecked={field.value === 'IRV'}
+                  size="lg"
+                />
+              )}
+            />
           </FormControl>
           <Button
             colorScheme={'blue'}

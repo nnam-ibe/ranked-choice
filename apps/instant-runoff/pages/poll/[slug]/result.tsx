@@ -49,6 +49,19 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
   const { poll } = props;
   if (!poll?.compiledVotes) return null;
   const { compiledVotes } = poll;
+
+  function isEliminated(stageNumber: number, rowIndex: number) {
+    if (!poll.choices) return false;
+    return rowIndex >= poll.choices.length - stageNumber;
+  }
+
+  function isWinner(stageNumber: number, option: { title: string }) {
+    return (
+      compiledVotes?.winner?.title === option.title &&
+      stageNumber === compiledVotes.stages.length - 1
+    );
+  }
+
   return (
     <div className={styles.irvContainer}>
       {compiledVotes.stages.map((stage, stageNumber) => {
@@ -67,12 +80,8 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
                 id: option.title,
                 Option: option.title,
                 Votes: option.votes,
-                eliminated: poll.choices?.length
-                  ? poll.choices?.length - stageNumber === row
-                  : false,
-                highlighted:
-                  compiledVotes?.winner?.title === option.title &&
-                  stageNumber === compiledVotes.stages.length - 1,
+                eliminated: isEliminated(stageNumber, row),
+                highlighted: isWinner(stageNumber, option),
               }))}
               footer={[
                 { title: 'Total Votes' },

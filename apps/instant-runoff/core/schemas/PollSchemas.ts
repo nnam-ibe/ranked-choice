@@ -32,7 +32,6 @@ const PollSchema = new mongoose.Schema<Poll>({
   description: {
     type: String,
     maxLength: pollDescriptionMaxLength,
-    minLength: 1,
   },
   choices: [PollOptionSchema],
   closed: { type: Boolean, default: false },
