@@ -9,7 +9,7 @@ import mongoClient from '../../../lib/mongodb';
 import styles from './result.module.css';
 
 export type ResultProps = {
-  poll: Partial<PollWithResult>;
+  poll: PollWithResult;
 };
 
 type Stage = NonNullable<
@@ -49,16 +49,16 @@ function FPPResult(props: { poll: ResultProps['poll'] }) {
 
 function IRVResult(props: { poll: ResultProps['poll'] }) {
   const { poll } = props;
-  if (!poll?.compiledVotes) return null;
+  if (!poll.compiledVotes) return null;
   const { compiledVotes } = poll;
 
   function isEliminated(stageNumber: number, title: string) {
-    return compiledVotes?.eliminated[stageNumber - 1]?.includes(title);
+    return compiledVotes.eliminated[stageNumber - 1]?.includes(title);
   }
 
   function isWinner(stageNumber: number, option: { title: string }) {
     return (
-      compiledVotes?.winner?.title === option.title &&
+      compiledVotes.winner?.title === option.title &&
       stageNumber === compiledVotes.stages.length - 1
     );
   }
@@ -93,9 +93,7 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
         );
       })}
       <div className={styles.winnerContainer}>
-        <Text>
-          Winner: <span>{compiledVotes.winner?.title}</span>
-        </Text>
+        <Text>{'Winner: ' + <span>{compiledVotes.winner?.title}</span>}</Text>
       </div>
     </div>
   );
@@ -110,7 +108,7 @@ export function ResultPage(props: ResultProps) {
   return (
     <article className={styles['container']}>
       <Text fontSize="2xl" fontWeight={800}>
-        {poll.title} Results
+        {poll.title}
       </Text>
       <Text fontSize="xl==lg">{poll.description}</Text>
       {poll.type === 'IRV' ? (
