@@ -4,16 +4,6 @@
   "sourceRoot": "libs/fake-data/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/fake-data",
-        "main": "libs/fake-data/src/index.ts",
-        "tsConfig": "libs/fake-data/tsconfig.lib.json",
-        "assets": ["libs/fake-data/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
