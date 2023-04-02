@@ -5,7 +5,6 @@ import { VotingSystem } from '@ranked-choice-voting/constants';
 
 const irvVoteZodSchema = z.object({
   _id: z.string() || z.instanceof(Types.ObjectId),
-  voteMap: z.record(z.string(), z.number()),
   rankingMap: z.record(z.number(), z.string()),
   pollId: z.string() || z.instanceof(Types.ObjectId),
   VotingSystem: z.literal(VotingSystem.IRV).optional(),
@@ -17,7 +16,6 @@ export const irvVoteCreationZodSchema = irvVoteZodSchema
   })
   .extend({
     rankingMap: z.record(z.coerce.number(), z.string()),
-    voteMap: z.record(z.string(), z.number()).optional(),
     pollId: z.string().optional() || z.instanceof(Types.ObjectId).optional(),
   });
 

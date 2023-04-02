@@ -28,20 +28,22 @@ function FPPResult(props: { poll: ResultProps['poll'] }) {
   if (!sortedChoices) return null;
 
   return (
-    <AppTable
-      headers={[{ title: 'Option' }, { title: 'Votes', isNumeric: true }]}
-      caption="Poll Results"
-      data={sortedChoices?.map((option, index) => ({
-        id: option._id,
-        Option: option.title,
-        Votes: option.votes,
-        highlighted: index === 0,
-      }))}
-      footer={[
-        { title: 'Total Votes' },
-        { title: poll.totalVotes ?? 0, isNumeric: true },
-      ]}
-    />
+    <div className={styles.detailsContainer}>
+      <AppTable
+        headers={[{ title: 'Option' }, { title: 'Votes', isNumeric: true }]}
+        caption="Poll Results"
+        data={sortedChoices?.map((option, index) => ({
+          id: option._id,
+          Option: option.title,
+          Votes: option.votes,
+          highlighted: index === 0,
+        }))}
+        footer={[
+          { title: 'Total Votes' },
+          { title: poll.totalVotes ?? 0, isNumeric: true },
+        ]}
+      />
+    </div>
   );
 }
 
@@ -50,9 +52,8 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
   if (!poll?.compiledVotes) return null;
   const { compiledVotes } = poll;
 
-  function isEliminated(stageNumber: number, rowIndex: number) {
-    if (!poll.choices) return false;
-    return rowIndex >= poll.choices.length - stageNumber;
+  function isEliminated(stageNumber: number, title: string) {
+    return compiledVotes?.eliminated[stageNumber - 1]?.includes(title);
   }
 
   function isWinner(stageNumber: number, option: { title: string }) {
@@ -63,11 +64,11 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
   }
 
   return (
-    <div className={styles.irvContainer}>
+    <div className={styles.detailsContainer}>
       {compiledVotes.stages.map((stage, stageNumber) => {
         const sortedStage = getSortedStage(stage);
         return (
-          <div key={stageNumber} className={styles.irvStage}>
+          <div key={stageNumber} className={styles.stage}>
             <AppTable
               headers={[
                 { title: 'Option' },
@@ -76,11 +77,11 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
               caption={`Stage ${stageNumber + 1} (${
                 compiledVotes.threshold
               } votes needed)`}
-              data={sortedStage?.map((option, row) => ({
+              data={sortedStage?.map((option) => ({
                 id: option.title,
                 Option: option.title,
                 Votes: option.votes,
-                eliminated: isEliminated(stageNumber, row),
+                eliminated: isEliminated(stageNumber, option.title),
                 highlighted: isWinner(stageNumber, option),
               }))}
               footer={[
@@ -91,6 +92,11 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
           </div>
         );
       })}
+      <div className={styles.winnerContainer}>
+        <Text>
+          Winner: <span>{compiledVotes.winner?.title}</span>
+        </Text>
+      </div>
     </div>
   );
 }

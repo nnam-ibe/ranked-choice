@@ -24,6 +24,7 @@ const compiledVotes = z
       })
       .optional(),
     stages: z.record(z.number()).array(),
+    eliminated: z.string().array().array(),
     numberOfVotes: z.number().optional(),
     threshold: z.number().optional(),
   })
