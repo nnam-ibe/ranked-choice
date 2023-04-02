@@ -93,7 +93,9 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
         );
       })}
       <div className={styles.winnerContainer}>
-        <Text>{'Winner: ' + <span>{compiledVotes.winner?.title}</span>}</Text>
+        <Text>
+          Winner: <span>{compiledVotes.winner?.title}</span>
+        </Text>
       </div>
     </div>
   );
