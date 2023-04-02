@@ -1,32 +1,31 @@
-import { APIPoll } from '../../core/schemas/PollSchemas';
+import type { APIPoll, Vote } from '@ranked-choice-voting/types';
 
-// TODO: use useQuery to fetch data
-
-export async function fetchPoll(pollId: string) {
-  // TODO: baseUrl should be moved to config file
-  return fetch(`http://localhost:4200/api/poll/${pollId}`).then((res) =>
-    res.json()
-  );
+async function handleApiResponse(res: Response) {
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message || 'Error submitting vote');
+  return data;
 }
 
-export async function submitVote(pollId: string, choice: string) {
-  // TODO: baseUrl should be moved to config file
-  return fetch(`http://localhost:4200/api/poll/${pollId}/vote`, {
+export async function fetchPoll(pollId: string) {
+  return fetch(`/api/poll/${pollId}`).then(handleApiResponse);
+}
+
+export async function submitVote(pollId: string, data: Vote) {
+  return fetch(`/api/poll/${pollId}/vote`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ choice }),
-  }).then((res) => res.json());
+    body: JSON.stringify(data),
+  }).then(handleApiResponse);
 }
 
 export async function createPoll(poll: APIPoll) {
-  // TODO: baseUrl should be moved to config file
-  return fetch(`http://localhost:4200/api/poll/create`, {
+  return fetch(`/api/poll/create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(poll),
-  }).then((res) => res.json());
+  }).then(handleApiResponse);
 }

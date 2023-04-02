@@ -1,26 +1,29 @@
 import { useState } from 'react';
 import {
   Button,
-  Chip,
-  ChipDelete,
   FormControl,
+  FormErrorMessage,
   FormHelperText,
   FormLabel,
-  Grid,
   Input,
-  Stack,
-  Typography,
-} from '@mui/joy';
+  InputGroup,
+  InputRightAddon,
+  Switch,
+  Tag,
+  TagCloseButton,
+  TagLabel,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { choiceMaxLength } from '@ranked-choice-voting/constants';
+import { PollAPIZodSchema } from '@ranked-choice-voting/types';
+import type { APIPoll } from '@ranked-choice-voting/types';
 
-import {
-  choiceMaxLength,
-  APIPollZodSchema,
-} from '../../core/schemas/PollSchemas';
 import { createPoll } from '../../lib/client/apiClient';
 import styles from './create.module.css';
-import type { APIPoll } from '../../core/schemas/PollSchemas';
+import utilStyles from '../../styles/utils.module.css';
 
 /**
 TODO: Add error alert
@@ -35,6 +38,7 @@ export function CreatePage() {
     choices: [],
     description: '',
     title: '',
+    type: 'IRV',
   };
   const {
     control,
@@ -44,7 +48,7 @@ export function CreatePage() {
     setValue,
     trigger,
   } = useForm({
-    resolver: zodResolver(APIPollZodSchema),
+    resolver: zodResolver(PollAPIZodSchema),
     defaultValues,
   });
 
@@ -57,14 +61,14 @@ export function CreatePage() {
 
   const handleAddChip = () => {
     if (currentItem.length === 0) return;
-    if (currentItem.length > choiceMaxLength) return;
     const itemsToAdd = currentItem.split(',');
 
     const newItems = new Set(items);
     itemsToAdd.forEach((toAdd) => {
+      if (toAdd.length > choiceMaxLength) return;
       toAdd = toAdd.trim();
       if (toAdd.length === 0) return;
-      if (items.has(toAdd)) return;
+      if (newItems.has(toAdd)) return;
       newItems.add(toAdd);
     });
 
@@ -95,143 +99,129 @@ export function CreatePage() {
   return (
     <form onSubmit={handleSubmit(onSubmitForm)}>
       <article className={styles['container']}>
-        <Stack
+        <VStack
           alignItems="stretch"
           className={styles['stack']}
           direction="column"
           justifyContent="center"
-          spacing={2}
+          spacing={4}
         >
-          <Typography level="h1">Create a Poll</Typography>
-          <FormControl>
-            <FormLabel
-              sx={(theme) => ({
-                '--FormLabel-color': theme.vars.palette.primary.plainColor,
-              })}
-            >
-              Poll Title
-            </FormLabel>
+          <Text fontSize="2xl" fontWeight={800}>
+            Create a Poll
+          </Text>
+          <FormControl isInvalid={!!errors?.title}>
+            <FormLabel className="required-field">Poll Title</FormLabel>
             <Controller
               name="title"
               control={control}
               render={({ field }) => (
                 <Input
-                  error={!!errors?.title}
                   onChange={field.onChange}
                   placeholder="First day of the week"
                   value={field.value}
                 />
               )}
             />
-
-            <FormHelperText>
-              <Typography
-                color={errors?.title ? 'danger' : 'neutral'}
-                level="body2"
-              >
-                {errors?.title?.message ?? 'Title of the poll'}
-              </Typography>
-            </FormHelperText>
+            {errors?.title?.message ? (
+              <FormErrorMessage>{errors?.title?.message}</FormErrorMessage>
+            ) : (
+              <FormHelperText>Title of the poll</FormHelperText>
+            )}
           </FormControl>
-          <FormControl>
-            <FormLabel
-              sx={(theme) => ({
-                '--FormLabel-color': theme.vars.palette.primary.plainColor,
-              })}
-            >
-              Poll Description
-            </FormLabel>
+          <FormControl isInvalid={!!errors?.description}>
+            <FormLabel>Poll Description</FormLabel>
             <Controller
               name="description"
               control={control}
               render={({ field }) => (
                 <Input
-                  error={!!errors?.description}
                   onChange={field.onChange}
                   placeholder="Does the week start on Monday or Sunday?"
                   value={field.value}
                 />
               )}
             />
-            <FormHelperText>
-              <Typography
-                color={errors?.description ? 'danger' : 'neutral'}
-                level="body2"
-              >
-                {errors?.description?.message ??
-                  'Description/Subtitle for more context'}
-              </Typography>
-            </FormHelperText>
+            {errors?.description?.message ? (
+              <FormErrorMessage>
+                {errors?.description?.message}
+              </FormErrorMessage>
+            ) : (
+              <FormHelperText>
+                Description/Subtitle for more context
+              </FormHelperText>
+            )}
           </FormControl>
-          <FormControl>
-            <FormLabel
-              sx={(theme) => ({
-                '--FormLabel-color': theme.vars.palette.primary.plainColor,
-              })}
-            >
-              Poll Choices
-            </FormLabel>
-            <Input
-              placeholder="Monday"
-              sx={{ '--Input-decoratorChildHeight': '38px' }}
-              value={currentItem}
-              onChange={(e) => setCurrentItem(e.target.value)}
-              slotProps={{ input: { maxLength: choiceMaxLength } }}
-              error={!!errors?.choices}
-              endDecorator={
+          <FormControl isInvalid={!!errors?.choices}>
+            <FormLabel className="required-field">Poll Choices</FormLabel>
+            <InputGroup size="md">
+              <Input
+                placeholder="Monday"
+                value={currentItem}
+                onChange={(e) => setCurrentItem(e.target.value)}
+                maxLength={64}
+              />
+              <InputRightAddon px="0">
                 <Button
-                  color="primary"
+                  colorScheme={'blue'}
                   onClick={handleAddChip}
-                  sx={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                  sx={{
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                  }}
                   variant="solid"
                 >
                   Add Choice
                 </Button>
-              }
-            />
-            <FormHelperText>
-              <Typography
-                color={errors?.choices ? 'danger' : 'neutral'}
-                level="body2"
-              >
-                {errors?.choices?.message ?? 'Poll choices to vote on'}
-              </Typography>
-            </FormHelperText>
+              </InputRightAddon>
+            </InputGroup>
+            {errors?.choices?.message ? (
+              <FormErrorMessage>{errors?.choices?.message}</FormErrorMessage>
+            ) : (
+              <FormHelperText>Poll choices to vote on</FormHelperText>
+            )}
             {
-              <Grid
-                container
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  gap: 1,
-                  marginTop: '1rem',
-                }}
-              >
-                {Array.from(items).map((item) => {
-                  return (
-                    <Chip
-                      variant="soft"
-                      key={item}
-                      endDecorator={
-                        <ChipDelete onDelete={() => handleRemoveChip(item)} />
-                      }
-                    >
-                      {item}
-                    </Chip>
-                  );
-                })}
-              </Grid>
+              <div className={utilStyles.tagContainer}>
+                {Array.from(items).map((item) => (
+                  <Tag
+                    colorScheme="blue"
+                    variant="solid"
+                    borderRadius="full"
+                    size="lg"
+                    key={item}
+                  >
+                    <TagLabel>{item}</TagLabel>
+                    <TagCloseButton onClick={() => handleRemoveChip(item)} />
+                  </Tag>
+                ))}
+              </div>
             }
           </FormControl>
+          <FormControl className={styles.switchContainer}>
+            <FormLabel>Ranked Choice Voting</FormLabel>
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <Switch
+                  onChange={(e) => {
+                    const value = e.target.checked ? 'IRV' : 'FPP';
+                    setValue('type', value);
+                  }}
+                  isChecked={field.value === 'IRV'}
+                  size="lg"
+                />
+              )}
+            />
+          </FormControl>
           <Button
-            color="primary"
-            loading={submitLoading}
+            colorScheme={'blue'}
+            isLoading={submitLoading}
             type="submit"
             variant="solid"
           >
             Create Poll
           </Button>
-        </Stack>
+        </VStack>
       </article>
     </form>
   );

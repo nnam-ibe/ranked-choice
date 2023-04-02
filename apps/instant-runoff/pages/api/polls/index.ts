@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import type { PollsList } from '@ranked-choice-voting/types';
 
 import { PollService } from '../../../core/api/PollService';
 import { withMiddleware } from '../../../core/api/middlewares';
-import type { PollsList } from '../../../core/schemas/PollSchemas';
 
 async function getPolls(req: NextApiRequest, res: NextApiResponse<PollsList>) {
   const polls = await PollService.getPolls();

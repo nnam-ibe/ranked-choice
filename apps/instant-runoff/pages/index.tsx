@@ -1,16 +1,16 @@
 import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
+import type { PollsList } from '@ranked-choice-voting/types';
 
 import { PollService } from '../core/api/PollService';
 import { stringifyData } from '../core/utils/stringify';
 import mongoClient from '../lib/mongodb';
 import styles from './index.module.css';
-import type { PollsList } from '../core/schemas/PollSchemas';
 
-export interface HomePageProps {
+type HomePageProps = {
   closedPolls: PollsList;
   openPolls: PollsList;
-}
+};
 
 export function HomePage(props: HomePageProps) {
   const { closedPolls, openPolls } = props;

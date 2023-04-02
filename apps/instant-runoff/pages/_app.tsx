@@ -1,8 +1,9 @@
 import { AppProps } from 'next/app';
+import { ChakraProvider } from '@chakra-ui/react';
+import { Tooltip } from '@chakra-ui/react';
 import Head from 'next/head';
 import Link from 'next/link';
-import PollIcon from '@mui/icons-material/Poll';
-import Tooltip from '@mui/joy/Tooltip';
+import Script from 'next/script';
 
 import './styles.css';
 import VisuallyHidden from '../components/visually-hidden/visually-hidden';
@@ -14,18 +15,22 @@ function CustomApp({ Component, pageProps }: AppProps) {
         <title>Polls Polls Polls!</title>
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
+      <Script
+        src="https://kit.fontawesome.com/f941b82a31.js"
+        crossOrigin="anonymous"
+      ></Script>
       <nav>
         <Link href="/">
           <VisuallyHidden>Home</VisuallyHidden>
-          <Tooltip title="Home">
-            <PollIcon
-              sx={{ scale: '2', color: 'black', filter: 'invert(1)' }}
-            />
+          <Tooltip label="Home">
+            <i className="fa-solid fa-square-poll-vertical home-icon"></i>
           </Tooltip>
         </Link>
       </nav>
       <main className="app">
-        <Component {...pageProps} />
+        <ChakraProvider>
+          <Component {...pageProps} />
+        </ChakraProvider>
       </main>
     </>
   );

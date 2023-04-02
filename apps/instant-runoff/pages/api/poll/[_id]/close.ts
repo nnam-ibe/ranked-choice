@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import type { ApiSuccess } from '@ranked-choice-voting/types';
 
 import { PollService } from '../../../../core/api/PollService';
 import { withMiddleware } from '../../../../core/api/middlewares';
-import type { ApiSuccess } from '../../../../core/schemas/ApiSchemas';
 
 async function closePoll(
   req: NextApiRequest,

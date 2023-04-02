@@ -1,14 +1,19 @@
 import mongoose from 'mongoose';
 import { ApiError } from 'next/dist/server/api-utils';
-
-import { PollModel } from '../schemas/PollSchemas';
+import { VotingSystem } from '@ranked-choice-voting/constants';
+import { isIRVVote } from '@ranked-choice-voting/types';
 import type {
+  IRVVote,
   Poll,
   PollCreation,
   PollsList,
   PollWithResult,
   Vote,
-} from '../schemas/PollSchemas';
+} from '@ranked-choice-voting/types';
+
+import { compileRankedVotes } from '../utils/compileVotes';
+import { PollModel } from '../schemas/PollSchemas';
+import { IRVVoteModel } from '../schemas/VoteSchema';
 
 const { ObjectId } = mongoose.Types;
 
@@ -27,6 +32,15 @@ export const PollService = {
     }
     return result;
   },
+  calculateResult: async (pollIdString: string) => {
+    const pollId = new ObjectId(pollIdString);
+    const poll = await PollModel.findOne<Poll>({ _id: pollId });
+    if (poll?.type !== VotingSystem.IRV) {
+      throw new ApiError(403, 'Can only calculate result for IRV polls');
+    }
+    const votes = await IRVVoteModel.find<IRVVote>({ pollId });
+    return compileRankedVotes(poll, votes);
+  },
   closePoll: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
     const result = await PollModel.updateOne({ _id: pollId }, { closed: true });
@@ -39,7 +53,7 @@ export const PollService = {
     const doc = new PollModel(poll);
     await doc.save();
   },
-  deactivePoll: async (pollIdString: string) => {
+  deactivatePoll: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
     const result = await PollModel.updateOne(
       { _id: pollId },
@@ -76,7 +90,7 @@ export const PollService = {
   getResult: async (pollIdString: string) => {
     const pollId = new ObjectId(pollIdString);
 
-    const poll = await PollModel.aggregate<PollWithResult>([
+    const polls = await PollModel.aggregate<PollWithResult>([
       { $match: { _id: pollId } },
       {
         $addFields: {
@@ -84,36 +98,47 @@ export const PollService = {
         },
       },
     ]);
-    if (!poll[0]) throw new ApiError(403, 'Poll not found');
+    if (!polls[0]) throw new ApiError(403, 'Poll not found');
+    const [poll] = polls;
+    if (poll.type === VotingSystem.IRV) {
+      const irvVotes = await IRVVoteModel.find<IRVVote>({ pollId });
+      const compiledVotes = compileRankedVotes(poll, irvVotes);
+      poll.compiledVotes = compiledVotes;
+    }
 
-    return poll[0];
+    return poll;
   },
   submitVote: async (vote: Vote) => {
-    const { _id: pollIdString, choice } = vote;
-    const pollId = new ObjectId(pollIdString);
-    const poll = await PollModel.findOne(pollId);
-    if (!poll) throw new ApiError(403, 'Poll not found');
-    if (poll.closed) throw new ApiError(403, 'Poll already closed');
-    if (!poll.active) throw new ApiError(403, 'Poll has been deactivated');
+    if (!isIRVVote(vote)) {
+      const { _id: pollIdString, choice } = vote;
+      const pollId = new ObjectId(pollIdString);
+      const poll = await PollModel.findOne(pollId);
+      if (!poll) throw new ApiError(403, 'Poll not found');
+      if (poll.closed) throw new ApiError(403, 'Poll already closed');
+      if (!poll.active) throw new ApiError(403, 'Poll has been deactivated');
 
-    const pollOption = poll.choices.find((c) => c.title === choice);
-    if (!pollOption) {
-      throw new ApiError(403, 'Poll option not found');
-    }
-    const result = await PollModel.updateOne(
-      {
-        _id: pollId,
-        'choices._id': pollOption._id,
-      },
-      {
-        $inc: {
-          'choices.$.votes': 1,
-        },
+      const pollOption = poll.choices.find((c) => c.title === choice);
+      if (!pollOption) {
+        throw new ApiError(403, 'Poll option not found');
       }
-    );
-    if (!result.acknowledged) {
-      throw new ApiError(403, 'Vote not submitted');
+      const result = await PollModel.updateOne(
+        {
+          _id: pollId,
+          'choices._id': pollOption._id,
+        },
+        {
+          $inc: {
+            'choices.$.votes': 1,
+          },
+        }
+      );
+      if (!result.acknowledged) {
+        throw new ApiError(403, 'SVote not submitted');
+      }
+      return result;
     }
-    return result;
+
+    const doc = new IRVVoteModel(vote);
+    await doc.save();
   },
 };
