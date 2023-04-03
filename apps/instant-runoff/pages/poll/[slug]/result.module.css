@@ -16,8 +16,6 @@
 .detailsContainer {
   display: grid;
   grid-gap: 2rem;
-  padding-right: 2rem;
-  padding-left: 2rem;
 }
 
 .stage {
@@ -37,4 +35,11 @@
 .winnerContainer span {
   font-weight: 900;
   font-size: larger;
+}
+
+@media (width > 400px) {
+  .detailsContainer {
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
 }
