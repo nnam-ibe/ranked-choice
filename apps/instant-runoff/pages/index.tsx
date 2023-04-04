@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 import type { PollsList } from '@ranked-choice-voting/types';
 
+import { AppLink } from '../components/app-link/app-link';
 import { PollService } from '../core/api/PollService';
 import { stringifyData } from '../core/utils/stringify';
 import mongoClient from '../lib/mongodb';
@@ -41,7 +41,7 @@ export function HomePage(props: HomePageProps) {
                 </svg>
                 <span>Polls Polls Polls</span>
               </h2>
-              <Link href={`/poll/create`}>Create your poll</Link>
+              <AppLink href={`/poll/create`}>Create your poll</AppLink>
             </div>
           </div>
 
@@ -50,7 +50,7 @@ export function HomePage(props: HomePageProps) {
               <h2>Open Polls</h2>
               {openPolls.map((poll) => {
                 return (
-                  <Link
+                  <AppLink
                     key={poll._id}
                     href={`/poll/${poll._id}`}
                     className="list-item-link"
@@ -59,7 +59,7 @@ export function HomePage(props: HomePageProps) {
                       {poll.title}
                       <span> {poll.description} </span>
                     </span>
-                  </Link>
+                  </AppLink>
                 );
               })}
             </div>
@@ -67,7 +67,7 @@ export function HomePage(props: HomePageProps) {
               <h2>Closed Polls</h2>
               {closedPolls.map((poll) => {
                 return (
-                  <Link
+                  <AppLink
                     key={poll._id}
                     href={`/poll/${poll._id}/result`}
                     className="list-item-link"
@@ -76,7 +76,7 @@ export function HomePage(props: HomePageProps) {
                       {poll.title}
                       <span> {poll.description} </span>
                     </span>
-                  </Link>
+                  </AppLink>
                 );
               })}
             </div>
