@@ -200,7 +200,7 @@ export function Poll(props: PollProps) {
         >
           {state.voted ? 'Voted!' : 'Submit Vote!'}
         </Button>
-        {poll.closed && (
+        {(poll.closed || state.voted) && (
           <div className={styles.viewResults}>
             <Link href={`/poll/${poll._id}/result`}>View Results →</Link>
           </div>
