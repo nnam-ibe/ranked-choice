@@ -10,13 +10,11 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import styles from './app-table.module.css';
-import type { TableRowProps } from '@chakra-ui/react';
 
 export type AppTableHeader = {
   title: string | number;
   isNumeric?: boolean;
   className?: string;
-  styles?: TableRowProps;
 };
 
 export type AppTableData = {
@@ -64,7 +62,6 @@ export function AppTable(props: AppTable) {
                 key={header.title}
                 isNumeric={header.isNumeric}
                 className={header.className}
-                {...header.styles}
               >
                 {header.title}
               </Th>
