@@ -2,12 +2,12 @@ import { Text } from '@chakra-ui/react';
 import type { GetServerSideProps } from 'next';
 import type { PollWithResult } from '@ranked-choice-voting/types';
 
+import { AppLink } from '../../../components/app-link/app-link';
 import { AppTable } from '../../../components/app-table/app-table';
 import { PollService } from '../../../core/api/PollService';
 import { stringifyData } from '../../../core/utils/stringify';
 import mongoClient from '../../../lib/mongodb';
 import styles from './result.module.css';
-import Link from 'next/link';
 
 export type ResultProps = {
   poll: PollWithResult;
@@ -133,10 +133,10 @@ export function ResultPage(props: ResultProps) {
         <FPPResult poll={poll} />
       )}
       {!poll.closed && (
-        <Link href={`/poll/${poll._id}`} className={styles.pollLink}>
+        <AppLink href={`/poll/${poll._id}`} className={styles.pollLink}>
           {' '}
           ← Back to poll
-        </Link>
+        </AppLink>
       )}
     </article>
   );

@@ -1,10 +1,10 @@
 import { useReducer } from 'react';
 import { Alert, AlertIcon, Button, Text, VStack } from '@chakra-ui/react';
-import Link from 'next/link';
 import type { GetServerSideProps } from 'next';
 import { VotingSystem } from '@ranked-choice-voting/constants';
 import type { Poll, Vote } from '@ranked-choice-voting/types';
 
+import { AppLink } from '../../../components/app-link/app-link';
 import { FPPVote } from '../../../components/fppvote/fppvote';
 import { getErrorMessage } from '../../../core/utils/error';
 import { IRVVote } from '../../../components/irvvote/irvvote';
@@ -202,7 +202,7 @@ export function Poll(props: PollProps) {
         </Button>
         {(poll.closed || state.voted) && (
           <div className={styles.viewResults}>
-            <Link href={`/poll/${poll._id}/result`}>View Results →</Link>
+            <AppLink href={`/poll/${poll._id}/result`}>View Results →</AppLink>
           </div>
         )}
       </VStack>
