@@ -2,6 +2,7 @@ import { Text } from '@chakra-ui/react';
 import type { GetServerSideProps } from 'next';
 import type { PollWithResult } from '@ranked-choice-voting/types';
 
+import { AppLink } from '../../../components/app-link/app-link';
 import { AppTable } from '../../../components/app-table/app-table';
 import { PollService } from '../../../core/api/PollService';
 import { stringifyData } from '../../../core/utils/stringify';
@@ -30,7 +31,10 @@ function FPPResult(props: { poll: ResultProps['poll'] }) {
   return (
     <div className={styles.detailsContainer}>
       <AppTable
-        headers={[{ title: 'Option' }, { title: 'Votes', isNumeric: true }]}
+        headers={[
+          { title: 'Option' },
+          { title: 'Votes', isNumeric: true, className: styles.voteColumn },
+        ]}
         caption="Poll Results"
         data={sortedChoices?.map((option, index) => ({
           id: option._id,
@@ -72,7 +76,11 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
             <AppTable
               headers={[
                 { title: 'Option' },
-                { title: 'Votes', isNumeric: true },
+                {
+                  title: 'Votes',
+                  isNumeric: true,
+                  className: styles.voteColumn,
+                },
               ]}
               caption={`Stage ${stageNumber + 1} (${
                 compiledVotes.threshold
@@ -93,9 +101,15 @@ function IRVResult(props: { poll: ResultProps['poll'] }) {
         );
       })}
       <div className={styles.winnerContainer}>
-        <Text>
-          Winner: <span>{compiledVotes.winner?.title}</span>
-        </Text>
+        {compiledVotes.winner ? (
+          <Text>
+            Winner: <span>{compiledVotes.winner.title}</span>
+          </Text>
+        ) : (
+          <Text>
+            <em>No choice achieve 50% + 1</em>
+          </Text>
+        )}
       </div>
     </div>
   );
@@ -117,6 +131,12 @@ export function ResultPage(props: ResultProps) {
         <IRVResult poll={poll} />
       ) : (
         <FPPResult poll={poll} />
+      )}
+      {!poll.closed && (
+        <AppLink href={`/poll/${poll._id}`} className={styles.pollLink}>
+          {' '}
+          ← Back to poll
+        </AppLink>
       )}
     </article>
   );

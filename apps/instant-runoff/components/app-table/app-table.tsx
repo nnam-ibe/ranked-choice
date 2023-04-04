@@ -14,6 +14,7 @@ import styles from './app-table.module.css';
 export type AppTableHeader = {
   title: string | number;
   isNumeric?: boolean;
+  className?: string;
 };
 
 export type AppTableData = {
@@ -48,12 +49,20 @@ export function AppTable(props: AppTable) {
   const { headers, data, footer } = props;
   return (
     <TableContainer>
-      <Table variant="simple" className={styles.appTable}>
+      <Table
+        variant="simple"
+        className={styles.appTable}
+        size={{ base: 'sm', md: 'md', lg: 'lg' }}
+      >
         <TableCaption>{props.caption}</TableCaption>
         <Thead>
           <Tr>
             {headers.map((header) => (
-              <Th key={header.title} isNumeric={header.isNumeric}>
+              <Th
+                key={header.title}
+                isNumeric={header.isNumeric}
+                className={header.className}
+              >
                 {header.title}
               </Th>
             ))}

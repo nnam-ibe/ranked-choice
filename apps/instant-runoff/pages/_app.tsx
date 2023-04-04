@@ -2,11 +2,11 @@ import { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
 import { Tooltip } from '@chakra-ui/react';
 import Head from 'next/head';
-import Link from 'next/link';
 import Script from 'next/script';
 
 import './styles.css';
-import VisuallyHidden from '../components/visually-hidden/visually-hidden';
+import { AppLink } from '../components/app-link/app-link';
+import { VisuallyHidden } from '../components/visually-hidden/visually-hidden';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
@@ -20,12 +20,12 @@ function CustomApp({ Component, pageProps }: AppProps) {
         crossOrigin="anonymous"
       ></Script>
       <nav>
-        <Link href="/">
+        <AppLink href="/">
           <VisuallyHidden>Home</VisuallyHidden>
           <Tooltip label="Home">
             <i className="fa-solid fa-square-poll-vertical home-icon"></i>
           </Tooltip>
-        </Link>
+        </AppLink>
       </nav>
       <main className="app">
         <ChakraProvider>
