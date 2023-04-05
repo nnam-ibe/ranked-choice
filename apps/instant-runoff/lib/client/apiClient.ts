@@ -1,4 +1,9 @@
-import type { APIPoll, Vote } from '@ranked-choice-voting/types';
+import type {
+  APIPoll,
+  Vote,
+  PollQuery,
+  PollsList,
+} from '@ranked-choice-voting/types';
 
 async function handleApiResponse(res: Response) {
   const data = await res.json();
@@ -8,6 +13,14 @@ async function handleApiResponse(res: Response) {
 
 export async function fetchPoll(pollId: string) {
   return fetch(`/api/poll/${pollId}`).then(handleApiResponse);
+}
+
+export async function fetchPolls(
+  options: Partial<PollQuery>
+): Promise<PollsList> {
+  return fetch(
+    `${process.env.BASE_URL}/api/polls?${new URLSearchParams(options)}`
+  ).then(handleApiResponse);
 }
 
 export async function submitVote(pollId: string, data: Vote) {

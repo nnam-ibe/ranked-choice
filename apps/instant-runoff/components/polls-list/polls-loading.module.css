@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+}
+
+.content {
+  background-color: hsl(0, 0%, 92%);
+  border-radius: 0.35rem;
+}
+
+.title {
+  width: 60%;
+  height: 1rem;
+}
+
+.description {
+  width: 80%;
+  height: 0.75rem;
+}

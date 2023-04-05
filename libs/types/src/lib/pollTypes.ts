@@ -95,8 +95,23 @@ const PollWithResultSchema = PollZodSchema.extend({
   compiledVotes,
 });
 
+export const PollQueryZodSchema = z
+  .object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    type: z.enum(VotingSystems).optional(),
+    closed: z.string().optional(),
+  })
+  .transform((val) => {
+    if (!val.closed) return val;
+
+    if (val.closed === 'true') return { ...val, closed: true };
+    return { ...val, closed: false };
+  });
+
 export type Poll = z.infer<typeof PollZodSchema>;
 export type PollCreation = z.infer<typeof PollZodCreationSchema>;
 export type APIPoll = z.infer<typeof PollAPIZodSchema>;
 export type PollsList = z.infer<typeof PollsListZodSchema>;
 export type PollWithResult = z.infer<typeof PollWithResultSchema>;
+export type PollQuery = z.infer<typeof PollQueryZodSchema>;
