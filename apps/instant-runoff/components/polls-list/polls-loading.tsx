@@ -1,5 +1,5 @@
 import styles from './polls-loading.module.css';
-export async function PollsLoading() {
+export function PollsLoading() {
   return (
     <>
       {Array.from({ length: 5 }, (_, index) => {
