@@ -93,4 +93,35 @@ describe('FormInput Component', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
   });
+
+  it('renders right addon', () => {
+    const onChange = jest.fn();
+    const placeholder = 'Enter a number';
+    const helperText = 'Sample helper text';
+    const errorMessage = 'Sample error message';
+    const label = 'Sample Field Label';
+    const isInvalid = true;
+    const rightAddon = { title: 'right Button', onClick: jest.fn() };
+
+    const { getByText, queryByText, getByRole } = render(
+      <FormInput
+        id="sample-input"
+        label={label}
+        onChange={onChange}
+        placeholder={placeholder}
+        helperText={helperText}
+        errorMessage={errorMessage}
+        isInvalid={isInvalid}
+        rightAddon={rightAddon}
+      />
+    );
+    expect(getByText(label)).toBeTruthy();
+    expect(getByText(errorMessage)).toBeTruthy();
+    expect(getByText(rightAddon.title)).toBeTruthy();
+
+    const button = getByRole('button', { name: rightAddon.title });
+
+    fireEvent.click(button);
+    expect(rightAddon.onClick).toHaveBeenCalledTimes(1);
+  });
 });

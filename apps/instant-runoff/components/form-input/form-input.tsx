@@ -1,5 +1,6 @@
 import React from 'react';
 import type { FieldValues, UseFormRegister } from 'react-hook-form';
+import { Button } from '../button';
 
 type InputProps = {
   errorMessage?: string;
@@ -11,6 +12,10 @@ type InputProps = {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   value?: string;
+  rightAddon?: {
+    title?: string;
+    onClick?: () => void;
+  };
 };
 
 type ControllerProps = {
@@ -37,6 +42,7 @@ export function FormInput(props: FormInputProps) {
     placeholder,
     register,
     value,
+    rightAddon,
   } = props;
   const additionalProps = register ? { ...register(name) } : {};
 
@@ -53,15 +59,28 @@ export function FormInput(props: FormInputProps) {
       >
         {label}
       </label>
-      <input
-        id={id}
-        onChange={onChange}
-        value={value}
-        placeholder={placeholder}
-        type="text"
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-1"
-        {...additionalProps}
-      />
+      <div className="flex flex-wrap items-stretch w-full mb-1">
+        <input
+          id={id}
+          onChange={onChange}
+          value={value}
+          placeholder={placeholder}
+          type="text"
+          className={`flex-shrink flex-grow flex-auto w-px flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+            rightAddon && 'rounded-r-none'
+          }`}
+          {...additionalProps}
+        />
+        {rightAddon && (
+          <Button
+            id={`${id}-right-addon`}
+            onClick={rightAddon.onClick}
+            className="flex -mr-px rounded-lg rounded-l-none border border-l-0 border-gray-300  px-3 whitespace-no-wrap"
+          >
+            {rightAddon.title}
+          </Button>
+        )}
+      </div>
       {isInvalid ? (
         <span className="mt-2 text-sm text-red-600 dark:text-red-500">
           {errorMessage}
