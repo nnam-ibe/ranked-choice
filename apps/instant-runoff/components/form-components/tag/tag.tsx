@@ -5,7 +5,7 @@ type TagProps = { title: string; onDelete?: () => void };
 export function Tag(props: TagProps) {
   const { title, onDelete } = props;
   return (
-    <div className="bg-blue-500 text-white rounded py-2 px-4 inline-block ">
+    <div className="bg-blue-500 text-white rounded py-1 px-4 inline-block ">
       <span>{title}</span>
       {onDelete && (
         <button

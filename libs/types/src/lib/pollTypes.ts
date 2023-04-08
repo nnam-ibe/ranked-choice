@@ -5,6 +5,7 @@ import {
   choicesMinLength,
   pollDescriptionMaxLength,
   pollTitleMaxLength,
+  VotingSystem,
   VotingSystems,
 } from '@ranked-choice-voting/constants';
 
@@ -83,6 +84,13 @@ export const PollAPIZodSchema = PollZodCreationSchema.extend({
     ),
 });
 
+export const PollFormZodSchema = PollAPIZodSchema.extend({
+  type: z.boolean(),
+}).transform<APIPoll>((val) => {
+  if (val.type === true) return { ...val, type: VotingSystem.IRV };
+  return { ...val, type: VotingSystem.FPP };
+});
+
 export const PollsListZodSchema = PollZodSchema.pick({
   closed: true,
   description: true,
@@ -115,3 +123,4 @@ export type APIPoll = z.infer<typeof PollAPIZodSchema>;
 export type PollsList = z.infer<typeof PollsListZodSchema>;
 export type PollWithResult = z.infer<typeof PollWithResultSchema>;
 export type PollQuery = z.infer<typeof PollQueryZodSchema>;
+export type PollForm = z.infer<typeof PollFormZodSchema>;

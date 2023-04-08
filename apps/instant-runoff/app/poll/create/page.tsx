@@ -1,28 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  FormControl,
-  FormErrorMessage,
-  FormHelperText,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputRightAddon,
+  Button,
+  FormInput,
   Switch,
   Tag,
-  TagCloseButton,
-  TagLabel,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FormInput } from '../../../components/form-input';
-import { Button } from '../../../components/button';
+} from '../../../components/form-components';
 import { choiceMaxLength } from '@ranked-choice-voting/constants';
-import { PollAPIZodSchema } from '@ranked-choice-voting/types';
-import type { APIPoll } from '@ranked-choice-voting/types';
+import { PollFormZodSchema } from '@ranked-choice-voting/types';
+import type { PollForm } from '@ranked-choice-voting/types';
 
 import { createPoll } from '../../../lib/client/apiClient';
 import styles from './page.module.css';
@@ -36,23 +25,21 @@ export function CreatePage() {
   const [currentItem, setCurrentItem] = useState<string>('');
   const [items, setItems] = useState<Set<string>>(new Set([]));
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
-  const defaultValues: APIPoll = {
+  const defaultValues: PollForm = {
     choices: [],
     description: '',
     title: '',
-    type: 'IRV',
+    type: true,
   };
   const {
-    control,
     formState: { errors },
     handleSubmit,
     reset,
     setValue,
     trigger,
     register,
-    getValues,
   } = useForm({
-    resolver: zodResolver(PollAPIZodSchema),
+    resolver: zodResolver(PollFormZodSchema),
     defaultValues,
   });
 
@@ -87,7 +74,7 @@ export function CreatePage() {
     }
   };
 
-  async function onSubmitForm(data: APIPoll) {
+  async function onSubmitForm(data: PollForm) {
     try {
       setSubmitLoading(true);
       await createPoll(data);
@@ -99,8 +86,6 @@ export function CreatePage() {
     }
     setSubmitLoading(false);
   }
-  console.log('errors', errors);
-  console.log('getValues', getValues());
   return (
     <form onSubmit={handleSubmit(onSubmitForm)}>
       <article className={styles.container}>
@@ -126,68 +111,38 @@ export function CreatePage() {
           isInvalid={!!errors.description}
           errorMessage={errors.description?.message}
         />
-        <FormControl isInvalid={!!errors?.choices}>
-          <FormLabel className="required-field">Poll Choices</FormLabel>
-          <InputGroup size="md">
-            <Input
-              placeholder="Monday"
-              value={currentItem}
-              onChange={(e) => setCurrentItem(e.target.value)}
-              maxLength={64}
-            />
-            <InputRightAddon px="0">
-              <Button
-                colorScheme={'blue'}
-                onClick={handleAddChip}
-                sx={{
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                }}
-                variant="solid"
-              >
-                Add Choice
-              </Button>
-            </InputRightAddon>
-          </InputGroup>
-          {errors?.choices?.message ? (
-            <FormErrorMessage>{errors?.choices?.message}</FormErrorMessage>
-          ) : (
-            <FormHelperText>Poll choices to vote on</FormHelperText>
-          )}
+        <div>
+          <FormInput
+            id="create-choices"
+            name="choices"
+            label="Poll Choices"
+            helperText="Poll choices to vote on"
+            errorMessage={errors?.choices?.message}
+            isInvalid={!!errors?.choices}
+            placeholder="Monday, Sunday"
+            rightAddon={{ title: 'Add Choice', onClick: handleAddChip }}
+            value={currentItem}
+            onChange={(e) => setCurrentItem(e.target.value)}
+          />
           {
             <div className={utilStyles.tagContainer}>
               {Array.from(items).map((item) => (
                 <Tag
-                  colorScheme="blue"
-                  variant="solid"
-                  borderRadius="full"
-                  size="lg"
                   key={item}
-                >
-                  <TagLabel>{item}</TagLabel>
-                  <TagCloseButton onClick={() => handleRemoveChip(item)} />
-                </Tag>
+                  title={item}
+                  onDelete={() => handleRemoveChip(item)}
+                />
               ))}
             </div>
           }
-        </FormControl>
-        <FormControl className={styles.switchContainer}>
-          <FormLabel>Ranked Choice Voting</FormLabel>
-          <Controller
-            name="type"
-            control={control}
-            render={({ field }) => (
-              <Switch
-                onChange={(e) => {
-                  const value = e.target.checked ? 'IRV' : 'FPP';
-                  setValue('type', value);
-                }}
-                isChecked={field.value === 'IRV'}
-                size="lg"
-              />
-            )}
-          />
-        </FormControl>
+        </div>
+        <Switch
+          id="create-voting-type-switching"
+          name="type"
+          register={register}
+          size="lg"
+          label="Ranked Choice Voting"
+        />
         <Button id="submit-button" isLoading={submitLoading} type="submit">
           Create Poll
         </Button>
