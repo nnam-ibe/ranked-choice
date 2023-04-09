@@ -27,7 +27,8 @@
     "**/*.js",
     "**/*.jsx",
     "next-env.d.ts",
-    "../../apps/instant-runoff/.next/types/**/*.ts"
+    "../../apps/instant-runoff/.next/types/**/*.ts",
+    "../../dist/apps/instant-runoff/.next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

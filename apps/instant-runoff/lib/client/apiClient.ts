@@ -5,6 +5,8 @@ import type {
   PollsList,
 } from '@ranked-choice-voting/types';
 
+import { getBaseUrl } from '../../core/utils/path';
+
 async function handleApiResponse(res: Response) {
   const data = await res.json();
   if (!res.ok) throw new Error(data?.message || 'Error submitting vote');
@@ -19,7 +21,7 @@ export async function fetchPolls(
   options: Partial<PollQuery>
 ): Promise<PollsList> {
   return fetch(
-    `${process.env.BASE_URL}/api/polls?${new URLSearchParams(options)}`
+    `${getBaseUrl()}/api/polls?${new URLSearchParams(options)}`
   ).then(handleApiResponse);
 }
 
