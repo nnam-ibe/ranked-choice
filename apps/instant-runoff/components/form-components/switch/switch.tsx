@@ -1,6 +1,5 @@
 import React, { ChangeEventHandler } from 'react';
 import { FormComponent } from '@ranked-choice-voting/types';
-
 type SwitchProps = {
   id: string;
   isChecked?: boolean;
