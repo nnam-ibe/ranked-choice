@@ -34,12 +34,14 @@ export default async function HomePage() {
             <div id="learning-materials" className="rounded shadow">
               <h2>Open Polls</h2>
               <Suspense fallback={<PollsLoading />}>
+                {/* @ts-expect-error Server Component */}
                 <PollsList options={{ closed: 'false' }} />
               </Suspense>
             </div>
             <div id="learning-materials" className="rounded shadow">
               <h2>Closed Polls</h2>
               <Suspense fallback={<PollsLoading />}>
+                {/* @ts-expect-error Server Component */}
                 <PollsList options={{ closed: 'true' }} />
               </Suspense>
             </div>

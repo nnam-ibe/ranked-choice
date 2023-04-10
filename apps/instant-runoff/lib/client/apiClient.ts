@@ -5,6 +5,8 @@ import type {
   PollsList,
 } from '@ranked-choice-voting/types';
 
+import { getBaseUrl } from '../../core/utils/path';
+
 async function handleApiResponse(res: Response) {
   const data = await res.json();
   if (!res.ok) throw new Error(data?.message || 'Error submitting vote');
@@ -12,15 +14,17 @@ async function handleApiResponse(res: Response) {
 }
 
 export async function fetchPoll(pollId: string) {
-  return fetch(`/api/poll/${pollId}`).then(handleApiResponse);
+  return fetch(`/api/poll/${pollId}`, { next: { revalidate: 30 } }).then(
+    handleApiResponse
+  );
 }
 
 export async function fetchPolls(
   options: Partial<PollQuery>
 ): Promise<PollsList> {
-  return fetch(
-    `${process.env.BASE_URL}/api/polls?${new URLSearchParams(options)}`
-  ).then(handleApiResponse);
+  return fetch(`${getBaseUrl()}/api/polls?${new URLSearchParams(options)}`, {
+    next: { revalidate: 30 },
+  }).then(handleApiResponse);
 }
 
 export async function submitVote(pollId: string, data: Vote) {

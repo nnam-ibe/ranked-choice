@@ -18,7 +18,7 @@ async function getPolls(options: Partial<PollQuery>) {
 export async function PollsList(props: PollsListProps) {
   const polls = await getPolls(props.options);
   if (!polls) {
-    return <></>;
+    return <div></div>;
   }
   return (
     <>
