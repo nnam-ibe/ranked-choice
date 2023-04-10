@@ -11,10 +11,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "incremental": true,
-    "types": [
-      "jest",
-      "node"
-    ],
+    "types": ["jest", "node"],
     "plugins": [
       {
         "name": "next"
@@ -34,6 +31,9 @@
     "node_modules",
     "jest.config.ts",
     "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    // HACK https://github.com/vercel/next.js/issues/44363
+    "../../apps/instant-runoff/.next/types/**/*.ts",
+    "../../dist/apps/instant-runoff/.next/types/**/*.ts"
   ]
 }

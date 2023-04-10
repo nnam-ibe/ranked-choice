@@ -14,15 +14,17 @@ async function handleApiResponse(res: Response) {
 }
 
 export async function fetchPoll(pollId: string) {
-  return fetch(`/api/poll/${pollId}`).then(handleApiResponse);
+  return fetch(`/api/poll/${pollId}`, { next: { revalidate: 30 } }).then(
+    handleApiResponse
+  );
 }
 
 export async function fetchPolls(
   options: Partial<PollQuery>
 ): Promise<PollsList> {
-  return fetch(
-    `${getBaseUrl()}/api/polls?${new URLSearchParams(options)}`
-  ).then(handleApiResponse);
+  return fetch(`${getBaseUrl()}/api/polls?${new URLSearchParams(options)}`, {
+    next: { revalidate: 30 },
+  }).then(handleApiResponse);
 }
 
 export async function submitVote(pollId: string, data: Vote) {
