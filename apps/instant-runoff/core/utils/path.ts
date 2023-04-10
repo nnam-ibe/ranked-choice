@@ -7,12 +7,10 @@ export function getProtocol() {
 }
 
 export function getBaseUrl() {
-  //get absolute url in client/browser
   if (!IS_SERVER) {
     return location.origin;
   }
 
-  //get absolute url in server.
   const protocol = getProtocol();
   if (process.env.VERCEL_URL) {
     return `${protocol}${process.env.VERCEL_URL}`;
