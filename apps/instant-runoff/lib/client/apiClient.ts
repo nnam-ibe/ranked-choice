@@ -28,7 +28,7 @@ async function handleErrResult<T>(res: Response): Promise<ApiClientResult<T>> {
 
 export async function fetchPoll(pollId: string) {
   return fetch(`${getBaseUrl()}/api/poll/${pollId}`, {
-    next: { revalidate: 30 },
+    cache: 'no-store'
   }).then(handleErrResult<Poll>);
 }
 
@@ -36,7 +36,7 @@ export async function fetchPolls(
   options: Partial<PollQuery>
 ): Promise<PollsList> {
   return fetch(`${getBaseUrl()}/api/polls?${new URLSearchParams(options)}`, {
-    next: { revalidate: 30 },
+    cache: 'no-store'
   }).then(handleApiResponse);
 }
 
