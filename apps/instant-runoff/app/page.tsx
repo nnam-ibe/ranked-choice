@@ -3,7 +3,7 @@ import { PollsList, PollsLoading } from '../components/polls-list';
 import styles from './page.module.css';
 import { Suspense } from 'react';
 
-export default async function HomePage() {
+export default function HomePage() {
   return (
     <div>
       <div className={styles.wrapper}>

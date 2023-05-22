@@ -142,12 +142,12 @@ export function ResultPage(props: ResultProps) {
   );
 }
 
-type ServerSideParams = { slug: string };
+type ServerSideParams = { id: string };
 type ServerSideResult = GetServerSideProps<ResultProps, ServerSideParams>;
 
 export const getServerSideProps: ServerSideResult = async ({ params }) => {
   await mongoClient;
-  const poll = await PollService.getResult(params?.slug ?? '');
+  const poll = await PollService.getResult(params?.id ?? '');
 
   return {
     props: {

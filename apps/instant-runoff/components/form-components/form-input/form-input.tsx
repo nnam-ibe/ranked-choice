@@ -51,7 +51,7 @@ export function FormInput(props: FormInputProps) {
     <div role="group">
       <label
         htmlFor={id}
-        className={`${derivedClassName} block mb-2 text-sm font-medium text-gray-900 dark:text-white ${
+        className={`${derivedClassName} block mb-2 text-sm font-medium text-gray-900 dark:text-white text-lg ${
           isInvalid
             ? 'text-red-600 dark:text-red-500'
             : 'text-600 dark:text-500'
