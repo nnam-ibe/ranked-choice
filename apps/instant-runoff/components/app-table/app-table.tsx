@@ -50,7 +50,7 @@ export function AppTable(props: AppTable) {
   return (
     <TableContainer>
       <Table
-        variant="simple"
+        variant={'simple'}
         className={styles.appTable}
         size={{ base: 'sm', md: 'md', lg: 'lg' }}
       >

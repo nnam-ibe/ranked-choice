@@ -3,7 +3,7 @@
   "npmScope": "ranked-choice-voting",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nrwl/nx-cloud",
+      "runner": "nx-cloud",
       "options": {
         "cacheableOperations": ["build", "lint", "test", "e2e"],
         "accessToken": "OTRiZjY1NzctNWFmZC00NzUxLWFhZjktNWQyMDM0NDFhMGNlfHJlYWQtd3JpdGU="
@@ -41,7 +41,7 @@
     "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
   },
   "generators": {
-    "@nrwl/react": {
+    "@nx/react": {
       "application": {
         "babel": true
       },
@@ -49,7 +49,7 @@
         "unitTestRunner": "jest"
       }
     },
-    "@nrwl/next": {
+    "@nx/next": {
       "application": {
         "style": "css",
         "linter": "eslint"
