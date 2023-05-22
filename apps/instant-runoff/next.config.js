@@ -17,6 +17,9 @@ const nextConfig = {
       uri: process.env.MONGODB_URI,
     },
   },
+  experimental: {
+    appDir: true,
+  },
 };
 
 module.exports = withNx(nextConfig);

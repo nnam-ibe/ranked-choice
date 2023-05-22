@@ -1,0 +1,32 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+}
+
+.content {
+  border-radius: 0.35rem;
+  opacity: 0.75;
+  animation: loading 1s linear infinite alternate;
+}
+
+.title {
+  width: 60%;
+  height: 1rem;
+}
+
+.description {
+  width: 80%;
+  height: 0.75rem;
+}
+
+/* loading animation */
+@keyframes loading {
+  0% {
+    background-color: hsla(200, 20%, 92%, 0.25);
+  }
+  100% {
+    background-color: hsla(200, 20%, 92%, 1);
+  }
+}

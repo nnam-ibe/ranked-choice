@@ -5,6 +5,7 @@ import {
   choicesMinLength,
   pollDescriptionMaxLength,
   pollTitleMaxLength,
+  VotingSystem,
   VotingSystems,
 } from '@ranked-choice-voting/constants';
 
@@ -83,6 +84,13 @@ export const PollAPIZodSchema = PollZodCreationSchema.extend({
     ),
 });
 
+export const PollFormZodSchema = PollAPIZodSchema.extend({
+  type: z.boolean(),
+}).transform<APIPoll>((val) => {
+  if (val.type === true) return { ...val, type: VotingSystem.IRV };
+  return { ...val, type: VotingSystem.FPP };
+});
+
 export const PollsListZodSchema = PollZodSchema.pick({
   closed: true,
   description: true,
@@ -95,8 +103,27 @@ const PollWithResultSchema = PollZodSchema.extend({
   compiledVotes,
 });
 
+export const PollQueryZodSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  type: z.enum(VotingSystems).optional(),
+  closed: z.string().optional(),
+});
+
+export const PollQueryTransformZodSchema = PollQueryZodSchema.transform(
+  (val) => {
+    if (!val.closed) return val;
+
+    if (val.closed === 'true') return { ...val, closed: true };
+    return { ...val, closed: false };
+  }
+);
+
 export type Poll = z.infer<typeof PollZodSchema>;
 export type PollCreation = z.infer<typeof PollZodCreationSchema>;
 export type APIPoll = z.infer<typeof PollAPIZodSchema>;
 export type PollsList = z.infer<typeof PollsListZodSchema>;
 export type PollWithResult = z.infer<typeof PollWithResultSchema>;
+export type PollQuery = z.infer<typeof PollQueryZodSchema>;
+export type PollQueryTransformed = z.infer<typeof PollQueryTransformZodSchema>;
+export type PollForm = z.infer<typeof PollFormZodSchema>;
